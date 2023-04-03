@@ -1,0 +1,20 @@
+{
+  "name": "quillia",
+  "version": "1.0.0",
+  "description": "Quillia is an EBook publising tool/platform that uses RSA encryption to issue/lend EBooks",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aadv1k/qullia.git"
+  },
+  "author": "Aadvik<aadv1k@outlook.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Aadv1k/qullia/issues"
+  },
+  "homepage": "https://github.com/Aadv1k/qullia#readme"
+}
+
