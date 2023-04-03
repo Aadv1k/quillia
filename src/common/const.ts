@@ -1,3 +1,16 @@
+import dotenv from "dotenv";
+dotenv.config({
+  path: "../.env",
+});
+
+export const DB = {
+  USER: process.env.PG_USER,
+  HOST: process.env.PG_HOST,
+  PORT: parseInt(process.env.PG_PORT),
+  DB_NAME: process.env.PG_DB,
+  PASSWORD: process.env.PG_PASSWORD,
+}
+
 export interface ErrorBlob {
   message: string,
   error: string,
@@ -14,7 +27,7 @@ export const ERROR = {
   badRequest: {
     message: "the request was invalid",
     status: 400,
-    error: "bad_request"
+    error: "bad-request"
   }
 } 
 

@@ -2,7 +2,7 @@ import http from "node:http";
 import { sendJsonResponse } from "../common/utils";
 import { ERROR } from "../common/const";
 
-interface ExistingUser {
+interface User {
   email: string;
   password: string;
 }
@@ -11,7 +11,8 @@ export default async function (
   req: http.IncomingMessage,
   res: http.ServerResponse
 ) {
-  let data: string | undefined;
+  let data: string;
+
   try {
     data = await new Promise((resolve, reject) => {
       let rawData: string = "";
@@ -21,20 +22,13 @@ export default async function (
     });
   } catch (error) {
     console.error(error);
-    sendJsonResponse(res, ERROR.internalErr);
+    sendJsonResponse(res, ERROR.internalErr)
     return;
   }
 
-  let parsedData: ExistingUser;
-  try {
-   parsedData = JSON.parse(data) as ExistingUser | undefined;
-  } catch (error) {
+  let parsedData: User = JSON.parse(data === "" ? '{}' : data);
+  if (Object.keys(parsedData).every(e => parsedData[e])) {
     sendJsonResponse(res, ERROR.badRequest);
     return;
   }
-  if (!parsedData) {
-    sendJsonResponse(res, ERROR.badRequest);
-    return;
-  }
-  console.log(parsedData);
 }
