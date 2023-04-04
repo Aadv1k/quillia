@@ -18,9 +18,8 @@ export default async function (
   let data: string;
   await DB.init();
 
-
   if (req.method !== "POST") {
-    sendJsonResponse(res, ERROR.methodNotAllowed);
+    sendJsonResponse(res, ERROR.methodNotAllowed, 405);
     return;
   }
 
@@ -37,8 +36,8 @@ export default async function (
     return;
   }
 
+  let parsedData: User;
 
-  let parsedData: User 
   try {
     parsedData = JSON.parse(data === "" ? '{}' : data);
   } catch {
@@ -67,12 +66,13 @@ export default async function (
     password: md5(parsedData.password),
   } 
 
-
   const token = new Token();
 
   try {
     await DB.pushUser(user)
-    let accessToken = token.generate(user);
+    const { password, ...tokenBody} = user;
+    let accessToken = token.generate(tokenBody);
+
     sendJsonResponse(res, {
       status: 201,
       message: "successfully created new user",

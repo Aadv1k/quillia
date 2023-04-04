@@ -17,12 +17,6 @@ export const JWT = {
   HASH: "sha256"
 }
 
-export interface ErrorBlob {
-  message: string,
-  error: string,
-  status: number,
-} 
-
 export const ERROR = {
   internalErr: {
     message: "something went wrong internally",
@@ -30,9 +24,21 @@ export const ERROR = {
     error: "internal-error"
   },
 
+  unauthorized: {
+    message: "the given credentials were invalid",
+    status: 401,
+    error: "unauthorized"
+  },
+
+  userNotFound: {
+    message: "unable to find user",
+    status: 404,
+    error: "user-not-found"
+  },
+
   methodNotAllowed: {
     message: "the method is not allowed for the endpoint",
-    status: 401,
+    status: 405,
     error: "method-not-allowed"
   },
   

@@ -1,9 +1,9 @@
-import { User, TokStatus } from "../common/types";
+import { TokStatus } from "../common/types";
 import { JWT  } from "../common/const"
 import { createHmac } from "node:crypto";
 
 export default class Token {
-  public generate(user: User, expiresIn?: number): string {
+  generate(user: object, expiresIn?: number): string {
     const head = { algorithm: JWT.ALGO, typ: "JWT"};
     const createdAt = Math.floor(Date.now() / 1000);
     const body = { ...user, iat: createdAt, exp: null}
@@ -12,8 +12,8 @@ export default class Token {
       body.exp = createdAt + expiresIn;
     }
 
-    let b64Head = Buffer.from(JSON.stringify(head)).toString("base64");
-    let b64Body = Buffer.from(JSON.stringify(body)).toString("base64");
+    let b64Head = Buffer.from(JSON.stringify(head)).toString("base64").replace(/=/g, "");
+    let b64Body = Buffer.from(JSON.stringify(body)).toString("base64").replace(/=/g, "");;
     let signature = this.sign(`${b64Head}.${b64Body}`);
 
     return `${b64Head}.${b64Body}.${signature}`

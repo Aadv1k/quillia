@@ -28,6 +28,18 @@ export default class UserModel {
   async userExists(email?: string): Promise<boolean> {
     const result = await this.client.query("SELECT EXISTS (SELECT 1 FROM users WHERE email = $1)", [email])
     return result.rows[0].exists
+  } 
+
+  async getUser(email: string): Promise<User | null> {
+    try {
+      const response = await this.client.query("SELECT * FROM users WHERE email = $1", [email]);
+      return response.rows[0]
+
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+
   }
 
   async getUsers(): Promise <Array<object> | null> {

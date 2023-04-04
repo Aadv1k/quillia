@@ -1,9 +1,8 @@
 import http from "node:http";
-import { sendJsonResponse } from "../common/utils";
+import { sendJsonResponse, md5 } from "../common/utils";
+import Token from "../lib/GenerateToken";
 import { ERROR } from "../common/const";
 import UserModel from "../models/UserModel";
-import isEmaiLValid from "../lib/isEmailValid";
-import { v4 as uuid } from "uuid";
 import { User } from "../common/types";
 
 const DB = new UserModel();
@@ -27,35 +26,45 @@ export default async function (
     return;
   }
 
-  let parsedData: User = JSON.parse(data === "" ? '{}' : data);
-  if (Object.keys(parsedData).every(e => parsedData[e])) {
-    sendJsonResponse(res, ERROR.badRequest);
+
+  if (req.method !== "POST") {
+    sendJsonResponse(res, ERROR.methodNotAllowed, 405);
     return;
   }
 
-  if (!isEmaiLValid(parsedData.email)) {
-    sendJsonResponse(res, ERROR.badRequest);
+  let parsedData: User;
+
+  try {
+    parsedData = JSON.parse(data === "" ? '{}' : data);
+  } catch(error) {
+    sendJsonResponse(res, ERROR.invalidJSONData, 400)
     return;
   }
-
-  let user: User = {
-    id: uuid(),
-    email: parsedData.email,
-    password: parsedData.password,
-  } 
 
   DB.init();
 
-  try {
-    DB.pushUser(user)
-    sendJsonResponse(res, {
-      message: "successfully registered the user",
-      error: "",
-      status: 200,
-    });
-  } catch (error) {
-    sendJsonResponse(res, ERROR.internalErr);
+  const foundUser: User = await DB.getUser(parsedData.email);
+
+  if (!foundUser) {
+    sendJsonResponse(res, ERROR.userNotFound, 404);
     return;
   }
+
+  if (md5(parsedData.password) !== foundUser.password) {
+    sendJsonResponse(res, ERROR.unauthorized, 401);
+    return;
+  }
+
+  const token = new Token();
+  const { password, ...tokenBody} = foundUser;
+  let accessToken = token.generate(tokenBody);
+
+  sendJsonResponse(res, {
+    messaged: "found the given user",
+    status: 200,
+    error: null,
+    token: accessToken,
+  }, 200)
+
   DB.close();
 }
