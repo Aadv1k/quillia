@@ -1,10 +1,12 @@
 import { ServerResponse } from "node:http";
-import { ErrorBlob, MIME } from "./const";
 import {  existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 
-export function sendJsonResponse(res: ServerResponse, error: ErrorBlob) {
-  res.writeHead(error.status, {
+import { MIME } from "./const";
+
+export function sendJsonResponse(res: ServerResponse, error: object, status: number = 200) {
+  res.writeHead(status, {
     "Content-type": "application/json",
   })
   res.write(JSON.stringify(error), "utf-8");
@@ -15,6 +17,13 @@ export function sendHtmlResponse(res: ServerResponse, html: string, status: numb
     "Content-type": "text/html",
   })
   res.write(html, "utf-8");
+}
+
+export function md5(data: string): string {
+  return crypto
+    .createHash("md5")
+    .update(data)
+    .digest("hex");
 }
 
 export function sendPublicFile(res: ServerResponse, filepath: string) {

@@ -11,6 +11,12 @@ export const DB = {
   PASSWORD: process.env.PG_PASSWORD,
 }
 
+export const JWT = {
+  SECRET: process.env.JWT_SECRET ?? "default",
+  ALGO: "HS256",
+  HASH: "sha256"
+}
+
 export interface ErrorBlob {
   message: string,
   error: string,
@@ -22,6 +28,24 @@ export const ERROR = {
     message: "something went wrong internally",
     status: 500,
     error: "internal-error"
+  },
+
+  methodNotAllowed: {
+    message: "the method is not allowed for the endpoint",
+    status: 401,
+    error: "method-not-allowed"
+  },
+  
+  userAlreadyExists: {
+    message: "the given user already exists, login instead.",
+    status: 409,
+    error: "user-already-exists"
+  },
+
+  invalidJSONData: {
+    message: "received invalid JSON data",
+    status: 400,
+    error: "invalid-json-data"
   },
 
   badRequest: {
