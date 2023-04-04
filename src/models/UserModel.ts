@@ -1,13 +1,6 @@
 import { Client } from "pg";
 import { DB as DBConfig } from "../common/const";
-
-import { v4 as uuid } from "uuid";
-
-interface User {
-  id: string;
-  email: string;
-  password: string;
-}
+import { User } from "../common/types";
 
 export default class UserModel {
   private readonly client: Client;
@@ -31,6 +24,12 @@ export default class UserModel {
     }
   }
 
+
+  async userExists(email?: string): Promise<boolean> {
+    const result = await this.client.query("SELECT EXISTS (SELECT 1 FROM users WHERE email = $1)", [email])
+    return result.rows[0].exists
+  }
+
   async getUsers(): Promise <Array<object> | null> {
     try {
       let data = await this.client.query(`SELECT * FROM users`)
@@ -40,7 +39,6 @@ export default class UserModel {
       return null;
     }
   }
-
 
   async updateUser(user: User, toUpdate: object ) {
     let blobs = Object.keys(toUpdate).map((e, i) => {return `${e} = \$${i+1}`})
@@ -71,6 +69,24 @@ export default class UserModel {
       return user;
     } catch (error) {
       throw error;
+    }
+  }
+
+  async pushTokenForUser(token: string, userid: string): Promise<void | null> {
+    try {
+      await this.client.query("INSERT INTO tokens (userid, token) VALUES ($1, $2)", [userid, token]);
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async deleteTokenForUser(token?: string, userid?: string): Promise<void | null>  {
+    try {
+      await this.client.query("DELETE FROM tokens WHERE token = $1 OR userid = $2", [token, userid]);
+    } catch (error) {
+      console.error(error);
+      return null;
     }
   }
 
