@@ -9,9 +9,9 @@ export interface Book {
   userid: string,
   title: string,
   author: string,
-  createdAt: number,
-  path: string 
-  sig: string
+  path: string,
+  signature: string
+  cover?: string,
 }
 
 export enum TokStatus {

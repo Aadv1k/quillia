@@ -11,6 +11,11 @@ export const DB = {
   PASSWORD: process.env.PG_PASSWORD,
 }
 
+export const BUCKET = {
+  email: process.env.MEGA_EMAIL || "",
+  password: process.env.MEGA_PWD || "",
+}
+
 export const JWT = {
   SECRET: process.env.JWT_SECRET ?? "default",
   ALGO: "HS256",
@@ -22,6 +27,12 @@ export const ERROR = {
     message: "something went wrong internally",
     status: 500,
     error: "internal-error"
+  },
+
+  resourceExists: {
+    message: "resource already exists",
+    status: 409,
+    error: "resource-exists"
   },
 
   unauthorized: {
@@ -54,10 +65,22 @@ export const ERROR = {
     error: "invalid-json-data"
   },
 
+  invalidMimeForResource: {
+    message: "the mime recieved for the resource is not valid",
+    status: 415,
+    error: "invalid-mime-for-resource"
+  },
+
   badRequest: {
     message: "the request was invalid",
     status: 400,
     error: "bad-request"
+  },
+
+  fileTooLarge: {
+    message: "the file is too large",
+    status: 400,
+    error: "file-too-large",
   }
 } 
 
@@ -68,4 +91,6 @@ export enum MIME {
 }
 
 export const PORT = 8080 || process.env.PORT;
+export const MAX_EPUB_SIZE_MB = 20;
+
 

@@ -4,6 +4,8 @@ import path from "node:path";
 import {  existsSync, readFileSync } from "node:fs";
 import { ServerResponse } from "node:http";
 
+import {IncomingForm, Fields, Files} from "formidable";
+
 import { MIME } from "./const";
 
 export function sendJsonResponse(res: ServerResponse, error: object, status: number = 200) {
@@ -20,11 +22,24 @@ export function sendHtmlResponse(res: ServerResponse, html: string, status: numb
   res.write(html, "utf-8");
 }
 
-export function parseSimplePostData(req: http.IncomingMessage): Promise<string> {
+export function parsePostData(req: http.IncomingMessage): Promise<Array<object>> {
+  let form = new IncomingForm({ multiples: false });
   return new Promise((resolve, reject) => {
-    let data = "";
-    req.on("data", (chunk: string) => data += chunk)
-    req.on("end", () => resolve(data));
+    form.parse(req, (error, fields: Fields, files: Files) => {
+      if (error) reject(error);
+      resolve([fields, files]);
+    })
+  })
+}
+
+export function parseSimplePostData(req: http.IncomingMessage): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    let data: Buffer[] = [];
+    req.on("data", (chunk: Buffer) => data.push(chunk))
+    req.on("end", () => { 
+      const buf = Buffer.concat(data);
+      resolve(buf);
+    });
     req.on("error", reject);
   })
 }
