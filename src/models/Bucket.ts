@@ -26,6 +26,7 @@ export default class Bucket {
         resolve(data)
       });
     })
+
     return buffer;
   }
 

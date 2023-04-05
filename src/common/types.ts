@@ -4,6 +4,13 @@ export interface User {
   password: string;
 }
 
+export interface issue {
+  issueid: string,
+  userid: string,
+  bookid: string
+}
+
+
 export interface Book {
   id: string,
   userid: string,
