@@ -1,5 +1,5 @@
 import { BUCKET } from "../common/const";
-import { Storage } from "megajs";
+import { Storage, File} from "megajs";
 
 export default class Bucket {
   bucket: Storage;
@@ -16,6 +16,17 @@ export default class Bucket {
     let response = await this.bucket.upload(name, buffer).complete;
     let link = await response.link(false);
     return link;
+  }
+
+  async getBufferFromURL(url: string): Promise<Buffer> {
+    let file = File.fromURL(url);
+    let buffer: Buffer = await new Promise((resolve, reject) => {
+      file.downloadBuffer({}, (error, data: Buffer) => {
+        if (error) reject(error);
+        resolve(data)
+      });
+    })
+    return buffer;
   }
 
   async close() {
