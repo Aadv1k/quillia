@@ -13,7 +13,7 @@ export default class Token {
     }
 
     let b64Head = Buffer.from(JSON.stringify(head)).toString("base64").replace(/=/g, "");
-    let b64Body = Buffer.from(JSON.stringify(body)).toString("base64").replace(/=/g, "");;
+    let b64Body = Buffer.from(JSON.stringify(body)).toString("base64").replace(/=/g, "");
     let signature = this.sign(`${b64Head}.${b64Body}`);
 
     return `${b64Head}.${b64Body}.${signature}`
@@ -25,21 +25,27 @@ export default class Token {
       return TokStatus.INVALID;
     }
 
-    let decodedHead = Buffer.from(head, "base64").toString("utf-8");
-    let decodedBody = Buffer.from(body, "base64").toString("utf-8");
-
-    if (this.sign(`${decodedHead}.${decodedBody}`) !== signature) {
+    if (this.sign(`${head}.${body}`) !== signature) {
       return TokStatus.INVALID_SIG
     }
 
+    let decodedBody = Buffer.from(body, "base64").toString("utf-8");
+
     const curTime = Math.floor(Date.now() / 1000);
-    if (JSON.parse(body)?.exp > curTime) {
+    if (JSON.parse(decodedBody)?.exp > curTime) {
       return TokStatus.EXPIRED;
     }
 
     return TokStatus.VALID
   }
 
+  // assumes that the token is valid
+  UNSAFE_parse(token: string): object {
+    const [ _a, body, _b ] = token.split(".");
+    const parsedBody = Buffer.from(body, "base64").toString("utf-8");
+    const parsedJson = JSON.parse(parsedBody);
+    return parsedJson;
+  } 
 
   private sign(data: string): string {
     return createHmac(JWT.HASH, JWT.SECRET)

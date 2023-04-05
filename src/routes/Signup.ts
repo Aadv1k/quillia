@@ -82,6 +82,9 @@ export default async function (
 
   } catch (error) {
     sendJsonResponse(res, ERROR.internalErr, 500);
+  } finally {
+    await DB.close();
     return;
   }
+
 }

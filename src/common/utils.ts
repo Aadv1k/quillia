@@ -1,7 +1,8 @@
-import { ServerResponse } from "node:http";
-import {  existsSync, readFileSync } from "node:fs";
-import path from "node:path";
 import crypto from "node:crypto";
+import http from "node:http";
+import path from "node:path";
+import {  existsSync, readFileSync } from "node:fs";
+import { ServerResponse } from "node:http";
 
 import { MIME } from "./const";
 
@@ -17,6 +18,15 @@ export function sendHtmlResponse(res: ServerResponse, html: string, status: numb
     "Content-type": "text/html",
   })
   res.write(html, "utf-8");
+}
+
+export function parseSimplePostData(req: http.IncomingMessage): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", (chunk: string) => data += chunk)
+    req.on("end", () => resolve(data));
+    req.on("error", reject);
+  })
 }
 
 export function md5(data: string): string {

@@ -26,7 +26,6 @@ export default async function (
     return;
   }
 
-
   if (req.method !== "POST") {
     sendJsonResponse(res, ERROR.methodNotAllowed, 405);
     return;
@@ -41,7 +40,7 @@ export default async function (
     return;
   }
 
-  DB.init();
+  await DB.init();
 
   const foundUser: User = await DB.getUser(parsedData.email);
 
