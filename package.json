@@ -18,14 +18,19 @@
   },
   "homepage": "https://github.com/Aadv1k/qullia#readme",
   "dependencies": {
-    "@types/node": "^18.15.11",
-    "@types/pg": "^8.6.6",
-    "@types/uuid": "^9.0.1",
     "dotenv": "^16.0.3",
+    "epub": "^1.2.1",
+    "file-type-cjs": "^1.0.7",
+    "formidable": "^2.1.1",
+    "megajs": "^1.1.1",
     "pg": "^8.10.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@types/formidable": "^2.0.5",
+    "@types/node": "^18.15.11",
+    "@types/pg": "^8.6.6",
+    "@types/uuid": "^9.0.1",
     "typescript": "^5.0.3"
   }
 }
