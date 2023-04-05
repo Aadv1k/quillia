@@ -6,6 +6,7 @@ import RouteBooks from "./routes/Books";
 
 export default http.createServer( async (req: http.IncomingMessage, res: http.ServerResponse) => {
   const url: string  = req.url;
+
   if (url === "/") {
     sendPublicFile(res, "index.html");
   } else if (url.startsWith("/api/signup")) {
