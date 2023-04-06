@@ -24,9 +24,15 @@ export default class BookModel {
     }
   }
 
-  async getBooks(userid: string): Promise<Array<Book> | null> {
+  async bookExists(bookid: string): Promise<boolean> {
+    const result = await this.client.query("SELECT EXISTS (SELECT 1 FROM books WHERE id = $1)", [bookid])
+    return result.rows[0].exists
+  } 
+
+
+  async getBooks(): Promise<Array<Book> | null> {
     try {
-      let response = await this.client.query("SELECT * FROM books WHERE userid = $1", [userid]);
+      let response = await this.client.query("SELECT * FROM books");
       return response.rows;
     } catch (error) {
       console.error(error);

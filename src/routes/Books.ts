@@ -24,31 +24,12 @@ export default async function (
   res: http.ServerResponse
 ) {
   const BOOK_DB = new BookModel();
+  await BOOK_DB.init();
   await BUCKET.init();
-
-  const authorization = req.headers?.authorization;
-  const authToken = authorization?.split(" ")?.pop();
-
-  if (!authorization || !authToken) {
-    sendJsonResponse(res, ERROR.unauthorized, 401);
-    return;
-  }
-
-  const token = new Token();
-  const tokenStatus: TokStatus = token.verify(authToken);
-  const parsedAuthToken: any = token.UNSAFE_parse(authToken);
-
-  if (
-    tokenStatus === TokStatus.INVALID ||
-    tokenStatus === TokStatus.INVALID_SIG
-  ) {
-    sendJsonResponse(res, ERROR.unauthorized, 401);
-    return;
-  }
 
   if (req.method === "GET") {
     try {
-      let userBooks = await BOOK_DB.getBooks(parsedAuthToken.id);
+      let userBooks = await BOOK_DB.getBooks();
       sendJsonResponse(res, userBooks, 200);
     } catch (error) {
       console.error(error);
@@ -58,7 +39,25 @@ export default async function (
       return;
     }
   } else if (req.method === "POST") {
-    await BOOK_DB.init();
+    const authorization = req.headers?.authorization;
+    const authToken = authorization?.split(" ")?.pop();
+
+    if (!authorization || !authToken) {
+      sendJsonResponse(res, ERROR.unauthorized, 401);
+      return;
+    }
+
+    const token = new Token();
+    const tokenStatus: TokStatus = token.verify(authToken);
+    const parsedAuthToken: any = token.UNSAFE_parse(authToken);
+
+    if (
+      tokenStatus === TokStatus.INVALID ||
+      tokenStatus === TokStatus.INVALID_SIG
+    ) {
+      sendJsonResponse(res, ERROR.unauthorized, 401);
+      return;
+    }
 
     if (req.headers?.["content-type"] != "application/epub+zip") {
       sendJsonResponse(res, ERROR.invalidMimeForResource, 415);
