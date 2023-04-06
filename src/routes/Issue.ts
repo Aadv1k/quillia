@@ -29,7 +29,7 @@ export default async function (
   await USER_DB.init();
 
   const authorization = req.headers?.authorization;
-  const authToken = authorization?.split(" ")?.pop();
+  const authToken = authorization?.split(" ")?.pop()?.trim();
 
   if (!authorization || !authToken) {
     sendJsonResponse(res, ERROR.unauthorized, 401);
@@ -38,31 +38,36 @@ export default async function (
 
   const token = new Token();
   const tokenStatus: TokStatus = token.verify(authToken);
-  const parsedAuthToken: any = token.UNSAFE_parse(authToken);
-
+  
   if (
     tokenStatus === TokStatus.INVALID ||
     tokenStatus === TokStatus.INVALID_SIG
   ) {
     sendJsonResponse(res, ERROR.unauthorized, 401);
+
+    await ISSUE_DB.close();
+    await BOOK_DB.close();
+    await USER_DB.close();
     return;
   }
+
+  const parsedAuthToken: any = token.UNSAFE_parse(authToken);
 
   if (req.method === "GET") {
     try {
       let userIssues = await ISSUE_DB.getIssues(parsedAuthToken.id);
-
       if (!userIssues) {
         sendJsonResponse(res, ERROR.internalErr, 500);
         return;
       }
-
       sendJsonResponse(res, userIssues, 200);
     } catch (error) {
       console.error(error);
       sendJsonResponse(res, ERROR.internalErr, 500);
     } finally {
       await ISSUE_DB.close();
+      await BOOK_DB.close();
+      await USER_DB.close();
       return;
     }
   } else if (req.method === "POST") {
@@ -82,7 +87,7 @@ export default async function (
       return;
     }
 
-    if (!issueData.borrowerid ||  !issueData.id) {
+    if (!issueData.borrowerid || !issueData.bookid) {
       sendJsonResponse(res, ERROR.badRequest, 400)
       return;
     }
@@ -94,8 +99,7 @@ export default async function (
       sendJsonResponse(res, ERROR.resourceNotExists, 404)
       return;
     }
-
-    let foundIssue = await ISSUE_DB.getIssue("", "", parsedAuthToken.id)
+    let foundIssue = await ISSUE_DB.getIssue(parsedAuthToken.id);
 
     if (foundIssue) {
       sendJsonResponse(
@@ -120,6 +124,7 @@ export default async function (
       bookid: foundBook.id
     }
 
+    console.log(issueEntry);
     const pushed = await ISSUE_DB.pushIssue(issueEntry);
 
     if (!pushed) {

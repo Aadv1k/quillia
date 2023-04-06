@@ -32,10 +32,15 @@ export default class UserModel {
 
   async getUser(email: string, id?: string): Promise<User | null> {
     try {
-      const response = await this.client.query("SELECT * FROM users WHERE email = $1 OR id = $2", [email, id]);
+      const response = await this.client.query(
+        `SELECT * FROM users 
+        WHERE email = COALESCE($1, email) 
+        OR id = COALESCE($2, id)`, 
+        [email || null, id || null]
+      );
       return response.rows[0]
     } catch (error) {
-      console.error(error);
+      //console.error(error);
       return null;
     }
   }

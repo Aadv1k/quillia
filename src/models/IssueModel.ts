@@ -21,10 +21,10 @@ export default class IssueModel {
       await this.client.connect();
       await this.client.query(`
         CREATE TABLE IF NOT EXISTS issues (
-         id UUID NOT NULL,
-         lenderid UUID NOT NULL,
-         borrowerid UUID NOT NULL,
-         bookid UUID NOT NULL
+         id VARCHAR(255) UNIQUE NOT NULL,
+         lenderid VARCHAR(255) NOT NULL,
+         borrowerid VARCHAR(255) NOT NULL,
+         bookid VARCHAR(255) NOT NULL
         )
         `);
     } catch (error) {
@@ -40,7 +40,7 @@ export default class IssueModel {
   async pushIssue(data: Issue): Promise<Issue | null> {
     try {
       await this.client.query(
-        "INSERT INTO issues (id, lenderid, borrowerid, bookid) VALUES ($1 $2 $3 $4)",
+        "INSERT INTO issues (id, lenderid, borrowerid, bookid) VALUES ($1, $2, $3, $4)",
         [data.id, data.lenderid, data.borrowerid, data.bookid]
       );
       return data;
@@ -82,18 +82,22 @@ export default class IssueModel {
   }
 
   async getIssue(
-    issueid: string,
+    lenderid: string,
+    issueid?: string,
     borrowerid?: string,
-    lenderid?: string
   ): Promise<Issue | null> {
     try {
       let response = await this.client.query(
-        "SELECT * FROM issues WHERE issueid = $1 OR borrowerid = $2 OR lenderid = $3",
-        [issueid ?? "", borrowerid ?? "", lenderid ?? ""]
+        `SELECT * FROM issues 
+        WHERE lenderid = COALESCE($1, lenderid)
+        OR borrowerid = COALESCE($2, borrowerid)
+        OR issueid = COALESCE($3, issueid)
+        `,
+        [lenderid, borrowerid ?? null, issueid ?? null]
       );
       return response.rows[0];
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       return null;
     }
   }

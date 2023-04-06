@@ -36,7 +36,7 @@ export const ERROR = {
   },
 
   resourceNotExists: {
-    message: "resource not found exists",
+    message: "resource does not exist",
     status: 404,
     error: "resource-not-found"
   },
