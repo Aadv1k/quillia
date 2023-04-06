@@ -7,18 +7,20 @@ import RouteBooks from "./routes/Books";
 import RouteIssue from "./routes/Issue";
 
 export default http.createServer( async (req: http.IncomingMessage, res: http.ServerResponse) => {
-  const url: string  = req.url;
+  const url: string  = new URL(`https://foo.com${req.url}`).pathname;
 
   if (url === "/") {
     sendPublicFile(res, "index.html");
-  } else if (url.startsWith("/api/signup")) {
+  } else if (url ==="/api/signup") {
     await RouteSignup(req, res);
-  } else if (url.startsWith("/api/login")) {
+  } else if (url ==="/api/login") {
     await RouteLogin(req, res);
-  } else if (url.startsWith("/api/books")) {
+  } else if (url ==="/api/books") {
     await RouteBooks(req, res);
-  } else if (url.startsWith("/api/issue"))  {
+  } else if (url ==="/api/issue")  {
     await RouteIssue(req, res);
+  } else {
+    sendPublicFile(res, "index.html");
   }
   res.end();
 })

@@ -4,12 +4,12 @@ export interface User {
   password: string;
 }
 
-export interface issue {
-  issueid: string,
-  userid: string,
+export interface Issue {
+  id: string,
+  lenderid: string,
+  borrowerid: string,
   bookid: string
 }
-
 
 export interface Book {
   id: string,

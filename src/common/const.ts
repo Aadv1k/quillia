@@ -35,6 +35,12 @@ export const ERROR = {
     error: "resource-exists"
   },
 
+  resourceNotExists: {
+    message: "resource not found exists",
+    status: 404,
+    error: "resource-not-found"
+  },
+
   unauthorized: {
     message: "the given credentials were invalid",
     status: 401,
