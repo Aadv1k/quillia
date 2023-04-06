@@ -5,13 +5,13 @@ import { ERROR } from "../common/const";
 import UserModel from "../models/UserModel";
 import { User } from "../common/types";
 
-const DB = new UserModel();
 
 export default async function (
   req: http.IncomingMessage,
   res: http.ServerResponse
 ) {
   let data: string;
+  const DB = new UserModel();
 
   try {
     data = await new Promise((resolve, reject) => {
