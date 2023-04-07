@@ -31,6 +31,18 @@ export const ERROR = {
     error: "internal-error"
   },
 
+  invalidChapterID: {
+    message: "the chapter id requested for the issue was invalid",
+    status: 400,
+    error: "invalid-chapter-id"
+  },
+
+  chapterOutOfRange: {
+    message: "the requested chapter was out of range",
+    status: 400,
+    error: "chapter-out-of-range"
+  },
+
   resourceExists: {
     message: "resource already exists",
     status: 409,

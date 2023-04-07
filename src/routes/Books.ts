@@ -76,6 +76,7 @@ export default async function (
     }
 
     let randomString = crypto.randomBytes(16).toString("hex");
+
     const tempEpubFilePath = path.join(os.tmpdir(), `tmp-${randomString}.epub`);
     fs.writeFileSync(tempEpubFilePath, epubBuffer);
 

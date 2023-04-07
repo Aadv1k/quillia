@@ -1,8 +1,10 @@
 import crypto from "node:crypto";
 import http from "node:http";
+import https from "node:https";
 import path from "node:path";
-import {  existsSync, readFileSync } from "node:fs";
 import { ServerResponse } from "node:http";
+
+import {  existsSync, readFileSync } from "node:fs";
 import * as nanoid from "nanoid";
 
 import {IncomingForm, Fields, Files} from "formidable";
@@ -21,6 +23,29 @@ export function uuid(): string {
   let id = nid();
   return id;
 }
+
+export async function getBufferFromRawURL(resourceUrl: string): Promise<Buffer | null> {
+  let url = new URL(resourceUrl);
+
+  try {
+    let buffArr: Buffer[] = await new Promise((resolve, reject) => {
+      let func = url.protocol === "https:" ? https : http;
+      func.get(url, (res) => {
+        let data: Buffer[] = [];
+
+        res.on("data", (d: Buffer) => data.push(d))
+        res.on("error", reject)
+        res.on("end", () => resolve(data))
+      })
+    })
+
+    let buffer = Buffer.concat(buffArr);
+    return buffer;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+} 
  
 export function sendHtmlResponse(res: ServerResponse, html: string, status: number = 200) {
   res.writeHead(status, {
