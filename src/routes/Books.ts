@@ -3,7 +3,7 @@ import Bucket from "../models/Bucket";
 import Token from "../lib/GenerateToken";
 import { ERROR, MAX_EPUB_SIZE_MB } from "../common/const";
 import { TokStatus, Book } from "../common/types";
-import { sendJsonResponse, parseSimplePostData, md5 } from "../common/utils";
+import { sendJsonResponse, parseSimplePostData, md5, uuid} from "../common/utils";
 
 import filetype from "file-type-cjs";
 
@@ -12,8 +12,6 @@ import EPub from "epub";
 import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
-
-import { v4 as uuid } from "uuid";
 
 import http from "node:http";
 
@@ -49,7 +47,6 @@ export default async function (
 
     const token = new Token();
     const tokenStatus: TokStatus = token.verify(authToken);
-    const parsedAuthToken: any = token.UNSAFE_parse(authToken);
 
     if (
       tokenStatus === TokStatus.INVALID ||
@@ -59,13 +56,13 @@ export default async function (
       return;
     }
 
-    if (req.headers?.["content-type"] != "application/epub+zip") {
-      sendJsonResponse(res, ERROR.invalidMimeForResource, 415);
-      return;
-    }
+    const parsedAuthToken: any = token.UNSAFE_parse(authToken);
 
-    let epubBuffer = await parseSimplePostData(req);
+    let epubBuffer: Buffer;
+    epubBuffer = await parseSimplePostData(req);
+
     let epubSizeInMB = Math.ceil(epubBuffer.length / 1e6);
+
     let bufferMime = await filetype.fromBuffer(epubBuffer);
 
     if (bufferMime.mime != "application/epub+zip") {
@@ -89,9 +86,9 @@ export default async function (
       epub.parse();
     });
 
-    const epubCoverBuffer: [Buffer, string] = await new Promise((resolve, reject) => {
+    const epubCoverBuffer: [Buffer, string] = await new Promise((resolve, _) => {
       epub.getImage("cover.jpg", (error, data, mime) => {
-        if (error || mime !== "image/jpeg") reject(null);
+        if (error || mime !== "image/jpeg") resolve(null);
         resolve([data, mime]);
       });
     });
@@ -113,7 +110,7 @@ export default async function (
       return;
     }
 
-    let epubFilePermalink = await BUCKET.pushBufferWithName( epubBuffer, `${epubSignature}.epub`)
+    let epubFilePermalink = await BUCKET.pushBufferWithName(epubBuffer, `${epubSignature}.epub`)
     let epubID = uuid();
 
     let epubCoverPermalink = null;

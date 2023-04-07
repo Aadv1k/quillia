@@ -11,9 +11,11 @@ export const DB = {
   PASSWORD: process.env.PG_PASSWORD,
 }
 
-export const BUCKET = {
-  email: process.env.MEGA_EMAIL || "",
-  password: process.env.MEGA_PWD || "",
+export const CLOUDINARY_CONF = {
+  API_KEY: process.env.CLOUDINARY_API_KEY,
+  API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  CLOUD_NAME: "dbloby3uq",
+
 }
 
 export const JWT = {

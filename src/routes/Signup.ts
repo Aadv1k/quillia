@@ -1,13 +1,12 @@
 import http from "node:http";
 
-import { sendJsonResponse, md5 } from "../common/utils";
+import { sendJsonResponse, md5, uuid, parseSimplePostData } from "../common/utils";
 import { ERROR } from "../common/const";
 import { User } from "../common/types";
 
 import UserModel from "../models/UserModel";
 import Token from "../lib/GenerateToken";
 import isEmailValid from "../lib/isEmailValid";
-import { v4 as uuid } from "uuid";
 
 const DB = new UserModel();
 
@@ -15,27 +14,13 @@ export default async function (
   req: http.IncomingMessage,
   res: http.ServerResponse
 ) {
-  let data: string;
-  await DB.init();
-
   if (req.method !== "POST") {
     sendJsonResponse(res, ERROR.methodNotAllowed, 405);
     return;
   }
 
-  try {
-    data = await new Promise((resolve, reject) => {
-      let rawData: string = "";
-      req.on("data", (chunk: string) => (rawData += chunk));
-      req.on("end", () => resolve(rawData));
-      req.on("error", reject);
-    });
-  } catch (error) {
-    console.error(error);
-    sendJsonResponse(res, ERROR.internalErr, 500)
-    return;
-  }
-
+  let data: any = await parseSimplePostData(req);
+  data = data.toString();
   let parsedData: User;
 
   try {
@@ -55,7 +40,12 @@ export default async function (
     return;
   }
 
-  if (await DB.userExists(parsedData.email)) {
+
+  await DB.init();
+
+  let userExists = await DB.getUser(parsedData.email);
+
+  if (userExists) {
     sendJsonResponse(res, ERROR.userAlreadyExists, 409)
     return;
   }
@@ -68,23 +58,20 @@ export default async function (
 
   const token = new Token();
 
-  try {
-    await DB.pushUser(user)
+    let pushed = await DB.pushUser(user)
     const { password, ...tokenBody} = user;
     let accessToken = token.generate(tokenBody);
 
+  if (pushed !== null) {
     sendJsonResponse(res, {
       status: 201,
       message: "successfully created new user",
       error: null,
       token: accessToken
     }, 201)
-
-  } catch (error) {
+  } else {
     sendJsonResponse(res, ERROR.internalErr, 500);
-  } finally {
-    await DB.close();
-    return;
   }
 
+  await DB.close();
 }

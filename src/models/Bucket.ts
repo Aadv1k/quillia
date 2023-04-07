@@ -1,38 +1,53 @@
-import { BUCKET } from "../common/const";
-import { Storage, File} from "megajs";
+import { CLOUDINARY_CONF } from "../common/const";
+import { v2 as cloudinary } from "cloudinary";
+import { Readable } from "node:stream";
 
 export default class Bucket {
-  bucket: Storage;
+  bucket: any;
 
   constructor() {
-    //this.bucket = new Storage({ email: BUCKET.email, password: BUCKET.password });   
+    cloudinary.config({
+      cloud_name: CLOUDINARY_CONF.CLOUD_NAME,
+      api_key: CLOUDINARY_CONF.API_KEY,
+      api_secret: CLOUDINARY_CONF.API_SECRET
+    });
+    this.bucket = cloudinary;
   }
 
   async init() {
-    //this.bucket = await this.bucket.ready;
+    // syntactical consistency
   }
 
-  async pushBufferWithName(buffer: Buffer, name: string): Promise<string> {
+  async pushBufferWithName(buffer: Buffer, name: string): Promise<string | null> {
+    const stream = new Readable({
+      read: function() {
+        this.push(buffer);
+        this.push(null);
+      }
+    });
 
-    return "TEMP ADDR"
 
-    /*
-    let response = await this.bucket.upload(name, buffer).complete;
-    let link = await response.link(false);
-    return link;
-    */
-  }
-
-  async getBufferFromURL(url: string): Promise<Buffer> {
-    let file = File.fromURL(url);
-    let buffer: Buffer = await new Promise((resolve, reject) => {
-      file.downloadBuffer({}, (error, data: Buffer) => {
+    let response = new Promise((resolve, reject) => {
+      const writeStream = this.bucket.uploader.upload_stream({
+        public_id: name,
+        resource_type: "raw",
+        format: name.split('.').pop() // ideally "unsafe" files should not reach this point
+      }, (error: any, result: any) => {
         if (error) reject(error);
-        resolve(data)
-      });
+        resolve(result);
+      })
+
+      stream.pipe(writeStream);
     })
 
-    return buffer;
+    try {
+      let data: any = await response;
+      return data.secure_url;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+
   }
 
   async close() {

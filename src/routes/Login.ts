@@ -1,5 +1,5 @@
 import http from "node:http";
-import { sendJsonResponse, md5 } from "../common/utils";
+import { sendJsonResponse, md5, parseSimplePostData } from "../common/utils";
 import Token from "../lib/GenerateToken";
 import { ERROR } from "../common/const";
 import UserModel from "../models/UserModel";
@@ -10,21 +10,10 @@ export default async function (
   req: http.IncomingMessage,
   res: http.ServerResponse
 ) {
-  let data: string;
   const DB = new UserModel();
 
-  try {
-    data = await new Promise((resolve, reject) => {
-      let rawData: string = "";
-      req.on("data", (chunk: string) => (rawData += chunk));
-      req.on("end", () => resolve(rawData));
-      req.on("error", reject);
-    });
-  } catch (error) {
-    console.error(error);
-    sendJsonResponse(res, ERROR.internalErr)
-    return;
-  }
+  let data: any = await parseSimplePostData(req);
+  data = data.toString();
 
   if (req.method !== "POST") {
     sendJsonResponse(res, ERROR.methodNotAllowed, 405);
@@ -41,8 +30,8 @@ export default async function (
   }
 
   await DB.init();
-
   const foundUser: User = await DB.getUser(parsedData.email);
+  await DB.close();
 
   if (!foundUser) {
     sendJsonResponse(res, ERROR.userNotFound, 404);
@@ -64,6 +53,4 @@ export default async function (
     error: null,
     token: accessToken,
   }, 200)
-
-  DB.close();
 }

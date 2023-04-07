@@ -3,6 +3,7 @@ import http from "node:http";
 import path from "node:path";
 import {  existsSync, readFileSync } from "node:fs";
 import { ServerResponse } from "node:http";
+import * as nanoid from "nanoid";
 
 import {IncomingForm, Fields, Files} from "formidable";
 
@@ -15,6 +16,12 @@ export function sendJsonResponse(res: ServerResponse, error: object, status: num
   res.write(JSON.stringify(error), "utf-8");
 }
 
+export function uuid(): string {
+  const nid = nanoid.customAlphabet("1234567890abcdef", 10);
+  let id = nid();
+  return id;
+}
+ 
 export function sendHtmlResponse(res: ServerResponse, html: string, status: number = 200) {
   res.writeHead(status, {
     "Content-type": "text/html",

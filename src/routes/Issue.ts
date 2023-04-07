@@ -4,10 +4,8 @@ import UserModel from "../models/UserModel";
 
 import Token from "../lib/GenerateToken";
 import { ERROR } from "../common/const";
-import { TokStatus, Book, Issue, User} from "../common/types";
-import { sendJsonResponse, parseSimplePostData, md5 } from "../common/utils";
-
-import { v4 as uuid } from "uuid";
+import { TokStatus, Issue } from "../common/types";
+import { sendJsonResponse, parseSimplePostData, uuid } from "../common/utils";
 
 import http from "node:http";
 
@@ -38,47 +36,42 @@ export default async function (
   }
  
   const parsedAuthToken: any = token.UNSAFE_parse(authToken);
-  await ISSUE_DB.init();
-  await BOOK_DB.init();
   await USER_DB.init();
 
   if (req.method === "GET") {
     let URLparams = req.url.split('/').slice(3);
     let requestedIssue = URLparams?.[0];
-    
+
+    await ISSUE_DB.init();
+    await BOOK_DB.init();
+
     if (requestedIssue) {
       console.log(Buffer.from(requestedIssue).toString("base64"));
       let targetIssue = await ISSUE_DB.getIssue(null, requestedIssue, parsedAuthToken.id);
 
       if (!targetIssue) {
         sendJsonResponse(res, ERROR.resourceNotExists, 404);
-        return;
+      } else {
+        let bookid = targetIssue.bookid;
+        let targetBook = await BOOK_DB.getBook(bookid);
+        sendJsonResponse(res, targetBook, 200);
       }
 
-      let bookid = targetIssue.bookid;
-      let targetBook = await BOOK_DB.getBook(bookid);
-
-      sendJsonResponse(res, targetBook, 200);
-      await ISSUE_DB.close();
-      return;
-    }
-
-    try {
-      let userIssues = await ISSUE_DB.getIssues(parsedAuthToken.id);
-      if (!userIssues) {
-        sendJsonResponse(res, ERROR.internalErr, 500);
-        return;
-      }
-      sendJsonResponse(res, userIssues, 200);
-    } catch (error) {
-      console.error(error);
-      sendJsonResponse(res, ERROR.internalErr, 500);
-    } finally {
       await ISSUE_DB.close();
       await BOOK_DB.close();
-      await USER_DB.close();
       return;
     }
+
+    let userIssues = await ISSUE_DB.getIssues(parsedAuthToken.id);
+
+    if (!userIssues || userIssues.length === 0) {
+      sendJsonResponse(res, ERROR.resourceNotExists, 404);
+    } else {
+      sendJsonResponse(res, userIssues, 200);
+    }
+
+    await ISSUE_DB.close();
+
   } else if (req.method === "POST") {
     if (req.headers?.["content-type"] != "application/json") {
       sendJsonResponse(res, ERROR.invalidMimeForResource, 415);
@@ -154,7 +147,8 @@ export default async function (
       201
     );
   }
- // await ISSUE_DB.close();
- // await BOOK_DB.close();
- // await USER_DB.close();
+
+ await ISSUE_DB.close();
+ await BOOK_DB.close();
+ await USER_DB.close();
 }
