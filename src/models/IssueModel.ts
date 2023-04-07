@@ -72,13 +72,11 @@ export default class IssueModel {
         "SELECT * FROM issues WHERE borrowerid = $1",
         [borrowerid]
       );
-
       return response.rows;
     } catch (error) {
       console.error(error);
       return null;
     }
-
   }
 
   async getIssue(
@@ -89,15 +87,15 @@ export default class IssueModel {
     try {
       let response = await this.client.query(
         `SELECT * FROM issues 
-        WHERE lenderid = COALESCE($1, lenderid)
-        OR borrowerid = COALESCE($2, borrowerid)
-        OR issueid = COALESCE($3, issueid)
+          WHERE lenderid = $1
+          OR borrowerid = $2
+          OR id = $3
         `,
-        [lenderid, borrowerid ?? null, issueid ?? null]
+        [lenderid ?? null, borrowerid ?? null, issueid ?? null]
       );
       return response.rows[0];
     } catch (error) {
-      // console.error(error);
+      console.error(error);
       return null;
     }
   }

@@ -2,19 +2,14 @@ import IssueModel from "../models/IssueModel";
 import BookModel from "../models/BookModel";
 import UserModel from "../models/UserModel";
 
-import Bucket from "../models/Bucket";
 import Token from "../lib/GenerateToken";
-import { ERROR, MAX_EPUB_SIZE_MB } from "../common/const";
+import { ERROR } from "../common/const";
 import { TokStatus, Book, Issue, User} from "../common/types";
 import { sendJsonResponse, parseSimplePostData, md5 } from "../common/utils";
-
-import filetype from "file-type-cjs";
 
 import { v4 as uuid } from "uuid";
 
 import http from "node:http";
-
-const BUCKET = new Bucket();
 
 export default async function (
   req: http.IncomingMessage,
@@ -23,11 +18,6 @@ export default async function (
   const ISSUE_DB = new IssueModel();
   const BOOK_DB = new BookModel();
   const USER_DB = new UserModel();
-
-  await ISSUE_DB.init();
-  await BOOK_DB.init();
-  await USER_DB.init();
-
   const authorization = req.headers?.authorization;
   const authToken = authorization?.split(" ")?.pop()?.trim();
 
@@ -44,16 +34,35 @@ export default async function (
     tokenStatus === TokStatus.INVALID_SIG
   ) {
     sendJsonResponse(res, ERROR.unauthorized, 401);
-
-    await ISSUE_DB.close();
-    await BOOK_DB.close();
-    await USER_DB.close();
     return;
   }
-
+ 
   const parsedAuthToken: any = token.UNSAFE_parse(authToken);
+  await ISSUE_DB.init();
+  await BOOK_DB.init();
+  await USER_DB.init();
 
   if (req.method === "GET") {
+    let URLparams = req.url.split('/').slice(3);
+    let requestedIssue = URLparams?.[0];
+    
+    if (requestedIssue) {
+      console.log(Buffer.from(requestedIssue).toString("base64"));
+      let targetIssue = await ISSUE_DB.getIssue(null, requestedIssue, parsedAuthToken.id);
+
+      if (!targetIssue) {
+        sendJsonResponse(res, ERROR.resourceNotExists, 404);
+        return;
+      }
+
+      let bookid = targetIssue.bookid;
+      let targetBook = await BOOK_DB.getBook(bookid);
+
+      sendJsonResponse(res, targetBook, 200);
+      await ISSUE_DB.close();
+      return;
+    }
+
     try {
       let userIssues = await ISSUE_DB.getIssues(parsedAuthToken.id);
       if (!userIssues) {
@@ -124,7 +133,6 @@ export default async function (
       bookid: foundBook.id
     }
 
-    console.log(issueEntry);
     const pushed = await ISSUE_DB.pushIssue(issueEntry);
 
     if (!pushed) {
@@ -145,10 +153,8 @@ export default async function (
       },
       201
     );
-
-    await ISSUE_DB.close();
-    await BOOK_DB.close();
-    await USER_DB.close();
-    return;
   }
+ // await ISSUE_DB.close();
+ // await BOOK_DB.close();
+ // await USER_DB.close();
 }
