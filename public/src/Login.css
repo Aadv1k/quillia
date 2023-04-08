@@ -1,0 +1,8 @@
+.form-control {
+  @apply bg-orange-50 border-none;
+  outline: none;
+}
+
+.form-control:focus {
+  @apply shadow-none bg-orange-50;
+}

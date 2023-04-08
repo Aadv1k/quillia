@@ -5,3 +5,10 @@
 body {
   background: #f8f3ed;
 }
+
+main {
+height: 100%;
+min-height: 100vh;
+  overflow: scroll;
+  background-color: #f8f3ed;
+}

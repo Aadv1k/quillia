@@ -16,7 +16,8 @@ export function sendJsonResponse(res: ServerResponse, error: object, status: num
     "Content-type": "application/json",
     "Access-Control-Allow-Origin": '*',
     "Access-Control-Allow-Methods": 'GET, POST, PUT, DELETE',
-    "Access-Control-Allow-Headers": 'Content-Type, Authorization',
+    "Access-Control-Allow-Headers": 'Content-type, authorization',
+    "Access-Control-Allow-Credentials": "true",
   })
   res.write(JSON.stringify(error), "utf-8");
 }

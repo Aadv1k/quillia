@@ -44,7 +44,7 @@ export default async function (
   const parsedAuthToken: any = token.UNSAFE_parse(authToken);
   if (req.method === "GET") {
     let URLParams = req.url.split('/').slice(3);
-    let requestedIssue = URLParams?.[0];
+    let requestedBook = URLParams?.[0];
     let requestedIssueChapter = URLParams?.[1];
 
     await ISSUE_DB.init();
@@ -52,19 +52,17 @@ export default async function (
     await USER_DB.init();
 
 
-    if (requestedIssue) {
-      let targetIssue = await ISSUE_DB.getIssue(null, requestedIssue, parsedAuthToken.id);
-      if (!targetIssue) {
+    if (requestedBook) {
+      let targetBook = await BOOK_DB.getBook(requestedBook);
+      if (!targetBook) {
         sendJsonResponse(res, ERROR.resourceNotExists, 404);
       } else {
-        let bookid = targetIssue.bookid;
-        let targetBook = await BOOK_DB.getBook(bookid);
 
         if (!requestedIssueChapter) {
+          delete targetBook.path;
           sendJsonResponse(res, targetBook, 200);
           return;
         }
-
 
         let epubBuffer: Buffer = await getBufferFromRawURL(targetBook.path);
         let randomString = crypto.randomBytes(16).toString("hex");
@@ -78,7 +76,6 @@ export default async function (
           epub.parse();
         });
 
-
         let chapterNumber = Number(requestedIssueChapter);
 
         if (!chapterNumber) {
@@ -86,13 +83,13 @@ export default async function (
           return;
         }
 
-        if (chapterNumber > epub.flow.length) {
+        if (chapterNumber - 1 > epub.flow.length - 1) {
           sendJsonResponse(res, ERROR.chapterOutOfRange, 400);
           return;
         }
 
         const epubChapterContent = await new Promise((resolve, reject) => {
-          epub.getChapter(epub.flow[chapterNumber].id, (err: Error, text: string) => {
+          epub.getChapter(epub.flow[chapterNumber-1].id, (err: Error, text: string) => {
             if (err) reject(err)
             resolve(text)
           });
