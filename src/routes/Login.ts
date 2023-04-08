@@ -52,5 +52,8 @@ export default async function (
     status: 200,
     error: null,
     token: accessToken,
+    data: {
+      email: foundUser.email,
+    }
   }, 200)
 }

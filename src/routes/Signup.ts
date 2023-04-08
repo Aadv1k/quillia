@@ -43,9 +43,9 @@ export default async function (
 
   await DB.init();
 
-  let userExists = await DB.getUser(parsedData.email);
+  let foundUser = await DB.getUser(parsedData.email);
 
-  if (userExists) {
+  if (foundUser) {
     sendJsonResponse(res, ERROR.userAlreadyExists, 409)
     return;
   }
@@ -67,7 +67,10 @@ export default async function (
       status: 201,
       message: "successfully created new user",
       error: null,
-      token: accessToken
+      token: accessToken,
+      data: {
+        email: user.email,
+      }
     }, 201)
   } else {
     sendJsonResponse(res, ERROR.internalErr, 500);
