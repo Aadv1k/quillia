@@ -14,6 +14,9 @@ import { MIME } from "./const";
 export function sendJsonResponse(res: ServerResponse, error: object, status: number = 200) {
   res.writeHead(status, {
     "Content-type": "application/json",
+    "Access-Control-Allow-Origin": '*',
+    "Access-Control-Allow-Methods": 'GET, POST, PUT, DELETE',
+    "Access-Control-Allow-Headers": 'Content-Type, Authorization',
   })
   res.write(JSON.stringify(error), "utf-8");
 }

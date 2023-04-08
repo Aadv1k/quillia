@@ -15,7 +15,6 @@ export const CLOUDINARY_CONF = {
   API_KEY: process.env.CLOUDINARY_API_KEY,
   API_SECRET: process.env.CLOUDINARY_API_SECRET,
   CLOUD_NAME: "dbloby3uq",
-
 }
 
 export const JWT = {
@@ -110,7 +109,7 @@ export enum MIME {
   css = "text/css"
 }
 
-export const PORT = 8080 || process.env.PORT;
+export const PORT = 4000 || process.env.PORT;
 export const MAX_EPUB_SIZE_MB = 20;
 
 
