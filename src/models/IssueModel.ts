@@ -28,7 +28,7 @@ export default class IssueModel {
         )
         `);
     } catch (error) {
-      console.error(error);
+      throw error;
     }
   }
 

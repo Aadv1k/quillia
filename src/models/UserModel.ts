@@ -20,7 +20,7 @@ export default class UserModel {
     try {
       await this.client.connect();
     } catch (error) {
-      console.error(error);
+      throw error
     }
   }
 

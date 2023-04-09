@@ -1,18 +1,19 @@
-import { Client } from "pg";
+import { Pool } from "pg";
 import { DB as DBConfig } from "../common/const";
 import { Book } from "../common/types";
 
 export default class BookModel {
-  private readonly client: Client;
+  private readonly client: Pool;
 
   constructor() {
-    this.client = new Client({
+    this.client = new Pool({
       user: DBConfig.USER,
       host: DBConfig.HOST,
       database: DBConfig.DB_NAME,
       password: DBConfig.PASSWORD,
       port: DBConfig.PORT,
-      ssl: true
+      ssl: true,
+      connectionTimeoutMillis: 10_000,
     })
   }
 
@@ -20,7 +21,7 @@ export default class BookModel {
     try {
       await this.client.connect();
     } catch (error) {
-      console.error(error);
+      throw error;
     }
   }
 
