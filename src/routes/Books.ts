@@ -21,8 +21,6 @@ import { exec } from "node:child_process";
 
 import http from "node:http";
 
-const BUCKET = new Bucket();
-
 async function getEpubCoverFromEpubFile_UNIX(
   epubFilepath: string
 ): Promise<[Buffer, string] | null> {
@@ -77,139 +75,143 @@ export default async function (
   res: http.ServerResponse
 ) {
   const BOOK_DB = new BookModel();
+  const BUCKET = new Bucket();
+
   await BOOK_DB.init();
   await BUCKET.init();
 
-  if (req.method === "GET") {
-    try {
-      let userBooks = await BOOK_DB.getBooks();
-      userBooks = userBooks.map((e) => {
-        delete e.path;
-        return e;
+  try {
+
+    if (req.method === "GET") {
+      try {
+        let userBooks = await BOOK_DB.getBooks();
+        userBooks = userBooks.map((e) => {
+          delete e.path;
+          return e;
+        });
+        sendJsonResponse(res, userBooks, 200);
+      } catch (error) {
+        console.error(error);
+        sendJsonResponse(res, ERROR.internalErr);
+      }
+    } else if (req.method === "POST") {
+      const authorization = req.headers?.authorization;
+      const authToken = authorization?.split(" ")?.pop();
+
+      if (!authorization || !authToken) {
+        sendJsonResponse(res, ERROR.unauthorized, 401);
+        return;
+      }
+
+      const token = new Token();
+      const tokenStatus: TokStatus = token.verify(authToken);
+
+      if (
+        tokenStatus === TokStatus.INVALID ||
+        tokenStatus === TokStatus.INVALID_SIG
+      ) {
+        sendJsonResponse(res, ERROR.unauthorized, 401);
+        return;
+      }
+
+      const parsedAuthToken: any = token.UNSAFE_parse(authToken);
+
+      let epubBuffer: Buffer;
+      epubBuffer = await parseSimplePostData(req);
+
+      let epubSizeInMB = Math.ceil(epubBuffer.length / 1e6);
+
+      let bufferMime = await filetype.fromBuffer(epubBuffer);
+
+      if (bufferMime?.mime != "application/epub+zip") {
+        sendJsonResponse(res, ERROR.invalidMimeForResource, 415);
+        return;
+      }
+
+      if (epubSizeInMB > MAX_EPUB_SIZE_MB) {
+        sendJsonResponse(res, ERROR.fileTooLarge, 400);
+        return;
+      }
+
+      let randomString = crypto.randomBytes(16).toString("hex");
+      const tempEpubFilePath = path.join(os.tmpdir(), `tmp-${randomString}.epub`);
+      fs.writeFileSync(tempEpubFilePath, epubBuffer);
+
+      const epub: any = await new Promise((resolve, reject) => {
+        const epub = new EPub(tempEpubFilePath);
+        epub.on("end", () => resolve(epub));
+        epub.on("error", reject);
+        epub.parse();
       });
-      sendJsonResponse(res, userBooks, 200);
-    } catch (error) {
-      console.error(error);
-      sendJsonResponse(res, ERROR.internalErr);
-    } finally {
-      await BOOK_DB.close();
-      return;
-    }
-  } else if (req.method === "POST") {
-    const authorization = req.headers?.authorization;
-    const authToken = authorization?.split(" ")?.pop();
 
-    if (!authorization || !authToken) {
-      sendJsonResponse(res, ERROR.unauthorized, 401);
-      return;
-    }
+      let epubCoverBuffer = await getEpubCoverFromEpubFile_UNIX(tempEpubFilePath);
+      console.log(epubCoverBuffer);
 
-    const token = new Token();
-    const tokenStatus: TokStatus = token.verify(authToken);
+      let epubSignature = md5(epubBuffer.toString("hex"));
 
-    if (
-      tokenStatus === TokStatus.INVALID ||
-      tokenStatus === TokStatus.INVALID_SIG
-    ) {
-      sendJsonResponse(res, ERROR.unauthorized, 401);
-      return;
-    }
+      let foundBook = await BOOK_DB.getBook("", epubSignature);
+      if (foundBook) {
+        sendJsonResponse(
+          res,
+          {
+            ...ERROR.resourceExists,
+            data: {
+              id: foundBook.id,
+            },
+          },
+          409
+        );
+        return;
+      }
 
-    const parsedAuthToken: any = token.UNSAFE_parse(authToken);
+      let epubFilePermalink = await BUCKET.pushBufferWithName(
+        epubBuffer,
+        `${epubSignature}.epub`
+      );
 
-    let epubBuffer: Buffer;
-    epubBuffer = await parseSimplePostData(req);
+      let epubCoverPermalink = null;
 
-    let epubSizeInMB = Math.ceil(epubBuffer.length / 1e6);
+      if (epubCoverBuffer) {
+        epubCoverPermalink = await BUCKET.pushBufferWithName(
+          epubCoverBuffer[0],
+          `${epubSignature}.${epubCoverBuffer[1].split(".").pop()}`
+        );
+      }
 
-    let bufferMime = await filetype.fromBuffer(epubBuffer);
+      let epubID = uuid();
 
-    if (bufferMime?.mime != "application/epub+zip") {
-      sendJsonResponse(res, ERROR.invalidMimeForResource, 415);
-      return;
-    }
+      let epubEntry: Book = {
+        id: epubID,
+        userid: parsedAuthToken.id,
+        title: epub.metadata?.title ?? epubID.split("-").pop(),
+        author: epub.metadata?.creator ?? parsedAuthToken.email,
+        path: epubFilePermalink,
+        signature: epubSignature,
+        cover: epubCoverPermalink,
+      };
 
-    if (epubSizeInMB > MAX_EPUB_SIZE_MB) {
-      sendJsonResponse(res, ERROR.fileTooLarge, 400);
-      return;
-    }
+      const pushed = await BOOK_DB.pushBook(epubEntry);
 
-    let randomString = crypto.randomBytes(16).toString("hex");
-    const tempEpubFilePath = path.join(os.tmpdir(), `tmp-${randomString}.epub`);
-    fs.writeFileSync(tempEpubFilePath, epubBuffer);
+      if (!pushed) {
+        sendJsonResponse(res, ERROR.internalErr, 500);
+        return;
+      }
 
-    const epub: any = await new Promise((resolve, reject) => {
-      const epub = new EPub(tempEpubFilePath);
-      epub.on("end", () => resolve(epub));
-      epub.on("error", reject);
-      epub.parse();
-    });
-
-    let epubCoverBuffer = await getEpubCoverFromEpubFile_UNIX(tempEpubFilePath);
-    console.log(epubCoverBuffer);
-
-    let epubSignature = md5(epubBuffer.toString("hex"));
-
-    let foundBook = await BOOK_DB.getBook("", epubSignature);
-    if (foundBook) {
       sendJsonResponse(
         res,
         {
-          ...ERROR.resourceExists,
+          error: null,
+          message: `successfully published a book of id ${epubEntry.id}`,
           data: {
-            id: foundBook.id,
+            id: epubEntry.id,
           },
         },
-        409
-      );
-      return;
-    }
-
-    let epubFilePermalink = await BUCKET.pushBufferWithName(
-      epubBuffer,
-      `${epubSignature}.epub`
-    );
-    let epubID = uuid();
-
-    let epubCoverPermalink = null;
-
-    if (epubCoverBuffer) {
-      epubCoverPermalink = await BUCKET.pushBufferWithName(
-        epubCoverBuffer[0],
-        `${epubSignature}.${epubCoverBuffer[1].split(".").pop()}`
+        201
       );
     }
-
-    let epubEntry: Book = {
-      id: epubID,
-      userid: parsedAuthToken.id,
-      title: epub.metadata?.title ?? epubID.split("-").pop(),
-      author: epub.metadata?.creator ?? parsedAuthToken.email,
-      path: epubFilePermalink,
-      signature: epubSignature,
-      cover: epubCoverPermalink,
-    };
-
-    const pushed = await BOOK_DB.pushBook(epubEntry);
-
-    if (!pushed) {
-      sendJsonResponse(res, ERROR.internalErr, 500);
-      return;
-    }
-
-    sendJsonResponse(
-      res,
-      {
-        error: null,
-        message: `successfully published a book of id ${epubEntry.id}`,
-        data: {
-          id: epubEntry.id,
-        },
-      },
-      201
-    );
-
+  } finally {
     await BOOK_DB.close();
-    return;
+    //await BUCKET.close()
+    //res.end();
   }
 }

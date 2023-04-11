@@ -54,6 +54,7 @@ export default async function (
     token: accessToken,
     data: {
       email: foundUser.email,
+      id: foundUser.id,
     }
   }, 200)
 }
