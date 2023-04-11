@@ -89,16 +89,14 @@ export function md5(data: string): string {
 }
 
 export function sendPublicFile(res: ServerResponse, filepath: string) {
-  let resourcePath = path.resolve(__dirname, "../../public", filepath)
-  let notFoundPath  = path.resolve(__dirname,  "../../public", "404.html");
+  let resourcePath = path.join(__dirname, "../../public", filepath)
 
   if (!existsSync(resourcePath)) {
-    const html = readFileSync(notFoundPath, "utf-8");
-    sendHtmlResponse(res, html, 404);
-    return;
+    // we hope to handle the 404 state on the frontend
+    resourcePath = path.join(__dirname, "../../public", "index.html")
   }
 
-  let ext = filepath.split('.').pop();
+  let ext = resourcePath.split('.').pop();
   res.writeHead(200, { "Content-type": MIME[ext] });
   res.write(readFileSync(resourcePath, "utf-8"))
 }

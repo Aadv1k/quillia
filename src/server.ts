@@ -20,7 +20,7 @@ export default http.createServer( async (req: http.IncomingMessage, res: http.Se
   } else if (url.match(/^\/api\/issue/))  {
     await RouteIssue(req, res);
   } else {
-    sendPublicFile(res, "index.html");
+    sendPublicFile(res, url);
   }
   res.end();
 })
