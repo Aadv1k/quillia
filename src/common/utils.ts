@@ -19,6 +19,7 @@ export function sendJsonResponse(res: ServerResponse, error: object, status: num
     "Access-Control-Allow-Headers": 'Content-type, authorization',
     "Access-Control-Allow-Credentials": "true",
   })
+
   res.write(JSON.stringify(error), "utf-8");
 }
 
