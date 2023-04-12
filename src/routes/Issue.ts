@@ -111,7 +111,6 @@ export default async function (
         }
       } else {
         let userIssues = await ISSUE_DB.getIssues(parsedAuthToken.id);
-        console.log(userIssues)
         if (!userIssues) {
           sendJsonResponse(res, ERROR.resourceNotExists, 404);
         } else {
@@ -148,7 +147,9 @@ export default async function (
         sendJsonResponse(res, ERROR.resourceNotExists, 404)
         return;
       }
-      let foundIssue = await ISSUE_DB.getIssue(parsedAuthToken.id);
+      let foundIssue = await ISSUE_DB.getIssue(foundLender.id, foundBook.id, parsedAuthToken.id);
+
+      console.log(foundIssue);
 
       if (foundIssue) {
         sendJsonResponse(

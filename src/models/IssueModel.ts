@@ -81,17 +81,16 @@ export default class IssueModel {
 
   async getIssue(
     lenderid: string,
-    issueid?: string,
+    bookid?: string,
     borrowerid?: string,
   ): Promise<Issue | null> {
     try {
       let response = await this.client.query(
         `SELECT * FROM issues 
           WHERE lenderid = $1
-          OR borrowerid = $2
-          OR id = $3
+          AND bookid = $2
         `,
-        [lenderid ?? null, borrowerid ?? null, issueid ?? null]
+        [lenderid ?? null, bookid ?? null]
       );
       return response.rows[0];
     } catch (error) {
