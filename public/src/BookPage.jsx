@@ -3,18 +3,32 @@ import UserContext from "./UserContext.js";
 import { ReactReader } from "react-reader";
 
 export default function BookPage(props) {
+  const [currentUser, setCurrentUser] = useContext(UserContext);
   const [location, setLocation] = useState(null)
+  const [epubDataURL, setEpubDataURL] = useState(null);
   const locationChanged = epubcifi => {
-    // epubcifi is a internal string used by epubjs to point to a location in an epub. It looks like this: epubcfi(/6/6[titlepage]!/4/2/12[pgepubid00003]/3:0)
     setLocation(epubcifi)
   }
+
+  useEffect(() => {
+    fetch(`/api/issues/${props.bookid}/`, {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + JSON.parse(currentUser).token
+      }
+    }).then(e => e.blob())
+      .then(blob => {
+        setEpubDataURL(blob);
+      })
+
+  }, [])
 
   return (
     <div className="bg-orange-100 text-orange-900 font-medium text-md leading-6 h-full">
       <ReactReader
         location={location}
         locationChanged={locationChanged}
-        url="https://react-reader.metabits.no/files/alice.epub"
+        url={epubDataURL}
       />
     </div>
   );

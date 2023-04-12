@@ -8,6 +8,7 @@ export default function Book(props) {
   let [isModalVisible, setModalVisible] = useState(false);
   let [currentUser, _a] = useContext(UserContext);
   let [isIssued, setIssued] = useState(false);
+  let [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
     let foundIssue = props.issueData.find(e => 
@@ -19,6 +20,7 @@ export default function Book(props) {
 
 
   const issueBook = () => {
+    setLoading(true)
     fetch("/api/issues", {
       method: "POST",
       headers: {
@@ -32,6 +34,7 @@ export default function Book(props) {
     })
       .then(res => res.json())
       .then(data => {
+        setLoading(false);
         if (data.error) {
           console.error(data.error);
         } else {
@@ -50,7 +53,7 @@ export default function Book(props) {
             <Modal.Title>Reading: {props.data.title}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <BookPage />
+            <BookPage bookid={props.data.id} />
           </Modal.Body>
         </Modal>
       )}
@@ -70,7 +73,7 @@ export default function Book(props) {
               href="#"
               onClick={issueBook}
             >
-          {true ? (
+          {!isLoading ? (
             "Yes"
           ) : (
             <svg
