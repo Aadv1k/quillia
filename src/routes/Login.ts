@@ -33,6 +33,7 @@ export default async function (
   const foundUser: User = await DB.getUser(parsedData.email);
   await DB.close();
 
+  console.log(foundUser)
   if (!foundUser) {
     sendJsonResponse(res, ERROR.userNotFound, 404);
     return;

@@ -14,38 +14,73 @@ export default function Login() {
   const [error, setError] = useState({});
   const [isToastShown, setShowToast] = useState(null);
 
-  let handleSubmit = (e) => {
+  let handleSubmit = async (e) => {
     e.preventDefault();
     let formProps = Object.fromEntries(new FormData(e.target));
 
     setIsLoading(true);
 
-    fetch("http://localhost:4000/api/login", {
+    const loginResponse = await fetch("http://localhost:4000/api/login", {
       method: "POST",
       body: JSON.stringify({
         email: formProps.email,
         password: formProps.password,
       }),
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.error) {
-          setError(data);
-          setShowToast(true);
-        } else {
-          localStorage.setItem("Token", JSON.stringify({
-            token: data.token,
-            user: data.data
-          }));
 
-          setCurrentUserToValue({
-            token: data.token,
-            user: data.data
-          });
-          navigate("/", { replace: true });
-        }
-        setIsLoading(false);
+    const loginData = await loginResponse.json();
+
+    if (loginData.error !== "user-not-found" && loginData.error !== null) {
+      setError(loginData);
+      setShowToast(true);
+      setIsLoading(false);
+      return;
+    }
+
+    if (loginData.error === null) {
+      localStorage.setItem("Token", JSON.stringify({
+        token: loginData.token,
+        user: loginData.data
+      }));
+
+      setCurrentUserToValue({
+        token: loginData.token,
+        user: loginData.data
       });
+      navigate("/", { replace: true });
+      setIsLoading(false);
+      return;
+    }
+
+    const signupResponse = await fetch("http://localhost:4000/api/signup", {
+      method: "POST",
+      body: JSON.stringify({
+        email: formProps.email,
+        password: formProps.password,
+      }),
+    })
+
+    const signupData = await signupResponse.json();
+
+    if (signupData.error) {
+      setError(signupData);
+      setShowToast(true);
+      setIsLoading(false);
+      return;
+    }
+
+    localStorage.setItem("Token", JSON.stringify({
+      token: signupData.token,
+      user:  signupData.data
+    }));
+
+    setCurrentUserToValue({
+      token: signupData.token,
+      user:  signupData.data
+    });
+
+    navigate("/", { replace: true });
+    setIsLoading(false);
   };
 
   return (

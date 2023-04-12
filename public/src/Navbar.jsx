@@ -71,11 +71,11 @@ export default function Navbar(props) {
                     if (data.error) {
                       setError(data);
                       setShowToast(true);
-                      setIsLoading(false);
                     } else {
-                      setModalVisible(false);
                       props.fetchBooks();
+                      setModalVisible(false);
                     }
+                    setIsLoading(false);
                 })
 
               }}>

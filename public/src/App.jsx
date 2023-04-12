@@ -85,6 +85,7 @@ export default function App() {
           <Route path="/logout">
             {() => {
               localStorage.removeItem('Token');
+              localStorage.removeItem('Issues');
               navigate("/");
             }}
           </Route>
