@@ -5,15 +5,16 @@ import UserModel from "../models/UserModel";
 import Token from "../lib/GenerateToken";
 import { ERROR } from "../common/const";
 import { TokStatus, Issue } from "../common/types";
-import { sendJsonResponse, parseSimplePostData, uuid, getBufferFromRawURL } from "../common/utils";
+import {
+  sendJsonResponse,
+  sendEpubResponse,
+  parseSimplePostData,
+  uuid,
+  getBufferFromRawURL,
+} from "../common/utils";
 
 import http from "node:http";
-import path from "node:path";
-import fs from "node:fs";
-import crypto from "node:crypto";
-import os from "node:os";
-
-import EPub from "epub";
+import https from "node:https";
 
 export default async function (
   req: http.IncomingMessage,
@@ -26,7 +27,6 @@ export default async function (
   const authToken = authorization?.split(" ")?.pop()?.trim();
 
   try {
-
     if (req.method === "OPTIONS") {
       sendJsonResponse(res, {}, 200);
       return;
@@ -54,61 +54,29 @@ export default async function (
 
     const parsedAuthToken: any = token.UNSAFE_parse(authToken);
     if (req.method === "GET") {
-      let URLParams = req.url.split('/').slice(3);
+      let URLParams = req.url.split("/").slice(3);
       let requestedBook = URLParams?.[0];
-      let requestedIssueChapter = URLParams?.[1];
 
       if (requestedBook) {
         let targetBook = await BOOK_DB.getBook(requestedBook);
         if (!targetBook) {
           sendJsonResponse(res, ERROR.resourceNotExists, 404);
           return;
-        } else {
-          if (!requestedIssueChapter) {
-            delete targetBook.path;
-            sendJsonResponse(res, targetBook, 200);
-            return;
-          }
-
-          let epubBuffer: Buffer = await getBufferFromRawURL(targetBook.path);
-          let randomString = crypto.randomBytes(16).toString("hex");
-          const tempEpubFilePath = path.join(os.tmpdir(), `tmp-${randomString}.epub`);
-          fs.writeFileSync(tempEpubFilePath, epubBuffer);
-
-          const epub: EPub = await new Promise((resolve, reject) => {
-            const epub = new EPub(tempEpubFilePath);
-            epub.on("end", () => resolve(epub));
-            epub.on("error", reject);
-            epub.parse();
-          });
-
-          let chapterNumber = Number(requestedIssueChapter);
-
-          if (!chapterNumber) {
-            sendJsonResponse(res, ERROR.invalidChapterID, 400);
-            return;
-          }
-
-          if (chapterNumber - 1 > epub.flow.length - 1) {
-            sendJsonResponse(res, ERROR.chapterOutOfRange, 400);
-            return;
-          }
-
-          const epubChapterContent = await new Promise((resolve, reject) => {
-            epub.getChapter(epub.flow[chapterNumber-1].id, (err: Error, text: string) => {
-              if (err) reject(err)
-              resolve(text)
-            });
-          })
-
-          sendJsonResponse(res, {
-            error: null,
-            message: "chapter found",
-            data: {
-              content: epubChapterContent
-            }
-          }, 200);
         }
+
+        let epubResourcePath = targetBook.path;
+        const response: Array<Buffer> = await new Promise((resolve, reject) => {
+          https.get(epubResourcePath, (res) => {
+            let data: Array<Buffer> = [];
+            res.on("data", (d: Buffer) => data.push(d));
+            res.on("end", () => resolve(data));
+            res.on("error", (error) => reject(error));
+          });
+        });
+
+        let epubBuffer = Buffer.concat(response);
+        sendEpubResponse(res, epubBuffer);
+        return;
       } else {
         let userIssues = await ISSUE_DB.getIssues(parsedAuthToken.id);
         if (!userIssues) {
@@ -118,7 +86,6 @@ export default async function (
         }
       }
     } else if (req.method === "POST") {
-
       if (req.headers?.["content-type"] != "application/json") {
         sendJsonResponse(res, ERROR.invalidMimeForResource, 415);
         return;
@@ -131,12 +98,12 @@ export default async function (
         issueData = JSON.parse(issuePostData.toString());
       } catch (error) {
         console.error(error);
-        sendJsonResponse(res, ERROR.badRequest, 400)
+        sendJsonResponse(res, ERROR.badRequest, 400);
         return;
       }
 
       if (!issueData.lenderid || !issueData.bookid) {
-        sendJsonResponse(res, ERROR.badRequest, 400)
+        sendJsonResponse(res, ERROR.badRequest, 400);
         return;
       }
 
@@ -144,10 +111,14 @@ export default async function (
       let foundBook = await BOOK_DB.getBook(issueData.bookid);
 
       if (!foundLender || !foundBook) {
-        sendJsonResponse(res, ERROR.resourceNotExists, 404)
+        sendJsonResponse(res, ERROR.resourceNotExists, 404);
         return;
       }
-      let foundIssue = await ISSUE_DB.getIssue(foundLender.id, foundBook.id, parsedAuthToken.id);
+      let foundIssue = await ISSUE_DB.getIssue(
+        foundLender.id,
+        foundBook.id,
+        parsedAuthToken.id
+      );
 
       console.log(foundIssue);
 
@@ -168,12 +139,12 @@ export default async function (
 
       let issueid = uuid();
 
-      let issueEntry: Issue = { 
+      let issueEntry: Issue = {
         id: issueid,
         borrowerid: parsedAuthToken.id,
         lenderid: foundLender.id,
-        bookid: foundBook.id
-      }
+        bookid: foundBook.id,
+      };
 
       const pushed = await ISSUE_DB.pushIssue(issueEntry);
 
@@ -196,11 +167,10 @@ export default async function (
         },
         201
       );
-    } 
+    }
   } finally {
-      await ISSUE_DB.close();
-      await BOOK_DB.close();
-      await USER_DB.close();
-
+    await ISSUE_DB.close();
+    await BOOK_DB.close();
+    await USER_DB.close();
   }
 }
