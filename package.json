@@ -32,6 +32,7 @@
     "react-bootstrap": "^2.7.2",
     "react-bootstrap-icons": "^1.10.3",
     "react-dom": "^18.2.0",
+    "react-reader": "^1.2.1",
     "wouter": "^2.10.0"
   },
   "devDependencies": {
