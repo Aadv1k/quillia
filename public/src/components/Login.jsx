@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useLocation } from "wouter";
 import { useState, useContext } from "react";
 import "./Login.css";
-import UserContext from "./UserContext.js";
+import UserContext from "../UserContext.js";
 import { CustomToast } from "./Toast.jsx";
 
 
@@ -121,7 +121,7 @@ export default function Login() {
         </Form.Group>
 
         <button
-          className="text-md py-2 w-full bg-orange-300 border-none rounded-sm md:w-1/4 disabled"
+          className="btn--primary w-full rounded-sm md:w-1/4"
           type="submit"
         >
           {!isLoading ? (
@@ -129,7 +129,7 @@ export default function Login() {
           ) : (
             <svg
               aria-hidden="true"
-              className="inline w-6 h-6 mr-2 text-orange-200  animate-spin fill-orange-300"
+              className="inline w-6 h-6 mr-2 text-orange-200 animate-spin fill-orange-300"
               viewBox="0 0 100 101"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"

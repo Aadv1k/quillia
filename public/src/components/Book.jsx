@@ -1,7 +1,7 @@
 import "./Book.css";
 import { useState, useContext, useEffect } from "react";
 import { Modal, Toast, ToastContainer } from "react-bootstrap";
-import UserContext from "./UserContext.js";
+import UserContext from "../UserContext.js";
 import BookPage from "./BookPage.jsx"
 
 export default function Book(props) {
@@ -13,7 +13,7 @@ export default function Book(props) {
   useEffect(() => {
     let foundIssue = props.issueData.find(e => 
       e.bookid === props.data.id && 
-      e.lenderid  === JSON.parse(currentUser).user.id
+      e.borrowerid === JSON.parse(currentUser)?.user?.id
     );
     if (foundIssue) setIssued(true);
   }, [])
@@ -107,8 +107,6 @@ export default function Book(props) {
         </Modal>
       )}
 
-
-
       <div className="book-container">
         <div className="book">
           <img src={props.data.cover} />
@@ -118,7 +116,7 @@ export default function Book(props) {
         <strong className="capitalize font-serif break-all">{props.data.title}</strong>
         <small className="text-neutral-500">By {props.data.author}</small>
         <button
-          className="text-md mt-auto py-1 w-full text-orange-300 border-[1px] border-orange-300 rounded-full"
+          className={`${isIssued ? "btn--primary" : "btn--secondary"} mt-auto py-1 w-full rounded-full`}
           onClick={() => {
             setModalVisible(true)
           }}

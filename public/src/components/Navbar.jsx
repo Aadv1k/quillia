@@ -1,6 +1,8 @@
+import "../css/main.css";
+
 import { Book, Bookmark } from "react-bootstrap-icons";
 import { useContext, useState, useRef} from "react";
-import UserContext from "./UserContext.js";
+import UserContext from "../UserContext.js";
 import { Link } from "wouter";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
@@ -26,12 +28,12 @@ export default function Navbar(props) {
       </Link>
 
       {Object.keys(error).length !== 0 &&
-      <CustomToast 
-        title={error.error}
-        body={error.message}
-        visible={isToastShown}
-        setVisible={setShowToast}
-      />
+        <CustomToast 
+          title={error.error}
+          body={error.message}
+          visible={isToastShown}
+          setVisible={setShowToast}
+        />
       }
 
 
@@ -89,7 +91,7 @@ export default function Navbar(props) {
           </Modal.Body>
           <Modal.Footer>
             <button
-              className="text-md py-2 w-1/3 bg-orange-300 rounded-full border-orange-300 border-2 md:w-1/4"
+              className="btn--primary w-1/3 md:w-1/4"
               href="#"
               onClick={() => {
                 let submitEvent = new Event("submit", {bubbles: true, cancelable: true});
@@ -120,7 +122,7 @@ export default function Navbar(props) {
             </button>
 
             <button
-              className="text-md py-2 w-1/3 text-orange-300 rounded-full border-orange-300 border-2 md:w-1/4"
+              className="btn--secondary w-1/3 md:w-1/4"
               href="#"
               onClick={() => setModalVisible(false)}
             >
@@ -141,11 +143,11 @@ export default function Navbar(props) {
           </Link>
         ) : (
           <button
-            className="text-md py-2 w-1/2 bg-orange-300 rounded-full border-orange-300 border-2 flex items-center justify-center gap-2 md:w-1/4"
+            className="btn--primary w-1/2 flex items-center justify-center gap-2 md:w-1/4"
             href="#"
             onClick={() => setModalVisible(true)}
           >
-            <Book size={18} />
+            <Book size={16} />
             Publish
           </button>
         )}

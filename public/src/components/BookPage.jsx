@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import UserContext from "./UserContext.js";
+import UserContext from "../UserContext.js";
 import { ReactReader } from "react-reader";
 
 export default function BookPage(props) {

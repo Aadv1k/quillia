@@ -1,11 +1,11 @@
-import "./css/main.css";
+import "../css/main.css";
 import { useEffect, useState } from "react";
 import Navbar from "./Navbar.jsx";
 import Login from "./Login.jsx";
 import Library from "./Library.jsx";
 import "./App.css";
 import { Route, Router, Switch, useLocation} from 'wouter';
-import UserContext from "./UserContext.js";
+import UserContext from "../UserContext.js";
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);

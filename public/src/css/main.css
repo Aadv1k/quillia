@@ -2,13 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background: #f8f3ed;
+@layer base {
+  * {
+    @apply font-sans;
+  }
+
+  body {
+    @apply bg-[#f8f3ed];
+  }
+
+  main {
+    @apply h-full overflow-scroll bg-[#f8f3ed];
+  }
+
+  h1,h2,h3,h4,h5,h6 {
+    @apply font-serif;
+  }
 }
 
-main {
-height: 100%;
-min-height: 100vh;
-  overflow: scroll;
-  background-color: #f8f3ed;
+@layer components {
+  .btn--primary {
+    @apply text-sm py-2 bg-orange-300 rounded-full border-orange-300 border-[1px] 
+  }
+
+  .btn--secondary {
+    @apply text-sm py-2 rounded-full text-orange-300 border-orange-300 border-[1px]
+  }
 }
+
