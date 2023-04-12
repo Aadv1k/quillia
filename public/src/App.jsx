@@ -14,7 +14,6 @@ export default function App() {
   const setCurrentUserToValue = (value) => setCurrentUser(value);
   const [_a, navigate] = useLocation();
 
-
   const fetchIssuesFromAPI = (currentUser) => {
     let localIssueData = JSON.parse(localStorage.getItem("issues"));
 
@@ -39,7 +38,7 @@ export default function App() {
   const fetchBooksFromAPI = () => {
     let localBookData = JSON.parse(localStorage.getItem("books"));
 
-    fetch("http://localhost:4000/api/books", { })
+    fetch("/api/books", { })
       .then((res) => res.json())
       .then((data) => {
         if (localBookData !== data) {

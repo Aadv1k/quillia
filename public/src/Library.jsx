@@ -3,12 +3,6 @@ import Book from "./Book.jsx";
 import { useState, useContext, useEffect } from "react";
 
 export default function Library({ bookData, issueData }) {
-
-  useEffect(() => {
-    console.log(issueData);
-  }, [])
-
-
   return (
     <section className="library">
       <section className="max-w-5xl mx-auto px-4 my-6">

@@ -20,7 +20,7 @@ export default function Login() {
 
     setIsLoading(true);
 
-    const loginResponse = await fetch("http://localhost:4000/api/login", {
+    const loginResponse = await fetch("/api/login", {
       method: "POST",
       body: JSON.stringify({
         email: formProps.email,
@@ -52,7 +52,7 @@ export default function Login() {
       return;
     }
 
-    const signupResponse = await fetch("http://localhost:4000/api/signup", {
+    const signupResponse = await fetch("/api/signup", {
       method: "POST",
       body: JSON.stringify({
         email: formProps.email,
