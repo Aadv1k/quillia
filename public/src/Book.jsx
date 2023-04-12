@@ -2,42 +2,22 @@ import "./Book.css";
 import { useState, useContext, useEffect } from "react";
 import { Modal, Toast, ToastContainer } from "react-bootstrap";
 import UserContext from "./UserContext.js";
+import BookPage from "./BookPage.jsx"
 
 export default function Book(props) {
   let [isModalVisible, setModalVisible] = useState(false);
-  let [currentUser, setCurrentUser] = useContext(UserContext);
+  let [currentUser, _a] = useContext(UserContext);
   let [isIssued, setIssued] = useState(false);
-  let [currentPage, setCurrentPage] = useState("");
 
   useEffect(() => {
     let foundIssue = props.issueData.find(e => 
       e.bookid === props.data.id && 
       e.lenderid  === JSON.parse(currentUser).user.id
     );
-    
-    if (foundIssue) {
-      setIssued(true);
-    }
+    if (foundIssue) setIssued(true);
 
-    if (foundIssue && currentUser) {
-      getPage(2).then(page => {
-        console.log(page)
-        setCurrentPage(page)
-      });
-
-    }
   }, [])
 
-  const getPage = async (num) => {
-      const res = await fetch(`/api/issues/${props.data.id}/${num}`, {
-        method: "GET",
-        headers: {
-          "Authorization": "Bearer " + JSON.parse(currentUser).token,
-        }
-      })
-    let data = await res.json();
-    return data.data.content
-  }
 
   const issueBook = () => {
     fetch("/api/issues", {
@@ -70,7 +50,8 @@ export default function Book(props) {
           <Modal.Header closeButton>
             <Modal.Title>Reading: {props.data.title}</Modal.Title>
           </Modal.Header>
-          <Modal.Body dangerouslySetInnerHTML={{__html: currentPage}} className="bg-orange-100 text-orange-900 font-medium text-lg leading-6">
+          <Modal.Body>
+            <BookPage bookid={props.data.id} pageNumber={2}/>
           </Modal.Body>
         </Modal>
       )}
