@@ -23,7 +23,7 @@ export default async function (
   let parsedData: User;
 
   try {
-    parsedData = JSON.parse(data === "" ? '{}' : data);
+    parsedData = JSON.parse(data);
   } catch(error) {
     sendJsonResponse(res, ERROR.invalidJSONData, 400)
     return;
@@ -32,8 +32,9 @@ export default async function (
   await DB.init();
   const foundUser: User = await DB.getUser(parsedData.email);
   await DB.close();
+  console.log(foundUser);
 
-  console.log(foundUser)
+
   if (!foundUser) {
     sendJsonResponse(res, ERROR.userNotFound, 404);
     return;

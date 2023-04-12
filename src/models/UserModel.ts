@@ -34,9 +34,9 @@ export default class UserModel {
     try {
       const response = await this.client.query(
         `SELECT * FROM users 
-        WHERE email = COALESCE($1, email) 
-        OR id = COALESCE($2, id)`, 
-        [email || null, id || null]
+        WHERE email = $1
+        OR id = $2`, 
+        [email, id ?? ""]
       );
       return response.rows[0]
     } catch (error) {

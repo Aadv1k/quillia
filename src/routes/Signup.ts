@@ -70,6 +70,7 @@ export default async function (
       token: accessToken,
       data: {
         email: user.email,
+        id: user.id
       }
     }, 201)
   } else {
