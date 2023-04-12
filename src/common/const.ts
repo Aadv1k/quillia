@@ -111,7 +111,7 @@ export enum MIME {
   css = "text/css"
 }
 
-export const PORT = 4000 || process.env.PORT;
+export const PORT = process.env.PORT || 4000;
 export const MAX_EPUB_SIZE_MB = 20;
 
 
