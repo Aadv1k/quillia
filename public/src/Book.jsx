@@ -15,7 +15,6 @@ export default function Book(props) {
       e.lenderid  === JSON.parse(currentUser).user.id
     );
     if (foundIssue) setIssued(true);
-
   }, [])
 
 
@@ -51,7 +50,7 @@ export default function Book(props) {
             <Modal.Title>Reading: {props.data.title}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <BookPage bookid={props.data.id} pageNumber={2}/>
+            <BookPage />
           </Modal.Body>
         </Modal>
       )}
