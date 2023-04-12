@@ -19,6 +19,22 @@ npm run build # runs both of the scripts
 npm start
 ```
 
+```shell
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+TypeScript                      15            192              7           1043
+JSX                              7             75              0            558
+Markdown                         1             56              0            209
+CSS                              4             16             14            105
+JavaScript                       5              6              0             46
+HTML                             1              1              0             14
+-------------------------------------------------------------------------------
+SUM:                            33            346             21           1975
+-------------------------------------------------------------------------------
+```
+
+
 ## Frontend
 
 The frontend is built using ![React](https://img.shields.io/badge/React-20232A?style=plastic&logo=react&logoColor=61DAFB), ![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=plastic&logo=bootstrap&logoColor=white) and ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=plastic&logo=tailwind-css&logoColor=white)
