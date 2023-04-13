@@ -4,6 +4,13 @@
 
 ## Get
 
+### Docker
+
+```
+docker build -t quillia-dev .
+docker run -p 3000:8080 quillia-dev # forward 8080 to 3000
+```
+
 ### Build
 
 ```

@@ -122,7 +122,7 @@ export default function Book(props) {
         </div>
       </div>
       <div className="content flex flex-col w-1/2">
-        <strong className="capitalize font-serif break-all">{props.data.title}</strong>
+        <strong className="capitalize font-serif">{props.data.title}</strong>
         <small className="text-neutral-500">By {props.data.author}</small>
         <button
           className={`${isIssued ? "btn--primary" : "btn--secondary"} mt-auto py-1 w-full rounded-full`}
