@@ -134,10 +134,10 @@ export default function Navbar(props) {
       )}
 
       <div className="flex flex-row gap-2 items-center w-full justify-between md:justify-end">
-        <a 
-        href="/about"
+        <Link
+        to="/about"
           className="text-orange-500 underline w-1/2 flex items-center justify-center gap-2 md:w-1/4 hover:text-orange-600"
-        >About</a>
+        >About</Link>
 
         {!currentUser ? (
           <Link

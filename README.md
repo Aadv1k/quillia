@@ -19,46 +19,49 @@ npm run build # runs both of the scripts
 npm start
 ```
 
-```shell
--------------------------------------------------------------------------------
-Language                     files          blank        comment           code
--------------------------------------------------------------------------------
-TypeScript                      15            192              7           1043
-JSX                              7             75              0            558
-Markdown                         1             56              0            209
-CSS                              4             16             14            105
-JavaScript                       5              6              0             46
-HTML                             1              1              0             14
--------------------------------------------------------------------------------
-SUM:                            33            346             21           1975
--------------------------------------------------------------------------------
-```
-
 
 ## Frontend
 
-The frontend is built using ![React](https://img.shields.io/badge/React-20232A?style=plastic&logo=react&logoColor=61DAFB), ![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=plastic&logo=bootstrap&logoColor=white) and ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=plastic&logo=tailwind-css&logoColor=white)
+The frontend is built using ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB), ![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=flat&logo=bootstrap&logoColor=white) and ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)
 
-```shell
-$ tree ./public/src
+the frontend code is open for more improvements, but the current implementation can be found at [`./public/src`](./public/src)
 
-├── UserContext.js
-├── components
-│   ├── App.css
-│   ├── App.jsx
-│   ├── Book.css
-│   ├── Book.jsx
-│   ├── BookPage.jsx
-│   ├── Library.jsx
-│   ├── Login.css
-│   ├── Login.jsx
-│   ├── Navbar.css
-│   ├── Navbar.jsx
-│   └── Toast.jsx
-├── css
-│   └── main.css
-└── index.js
+
+## Backend
+
+The app is written in _mostly_ safe TypeScript code, here is a breakdown of the codebase. 
+
+
+### Routes
+
+Each route maps to a file in `./src/routes/`, each file exports a single function that consumes a `http.IncomingMessage` and a `http.ServerResponse` message
+
 ```
+Books.ts
+Issue.ts
+Login.ts
+Signup.ts
+```
+
+### Models
+
+To store `.epub` documents and their covers we use [cloudinary](https://cloudinary.com/), the functionality for this is implemented within `./src/models/BookModel.ts`
+
+
+The user, issues and books each have their own tables in a [PostgreSQL](https://www.postgresql.org/) database hosted at [bit.io](bit.io), each table corresponds to the name `users`, `issues`, `books`. Each table is implemented separately in it's own model files. 
+
+```
+BookModel.ts
+IssueModel.ts
+UserModel.ts
+```
+
+### Miscellaneous
+
+- `./src/common/utils.ts`: contains a utility functions (eg `sendJsonResponse`) that make our code cleaner and less repetetive
+- `./src/common/const.ts`: contains all constants, this included `PORT`, `MIME`, API `ERROR` blobs and even enviorment variables exported as contants (this is done to reduce the friction of moving a `.env` file)
+- `./src/common/types.ts`: Contains types for our project
+
 
 ## API
 
