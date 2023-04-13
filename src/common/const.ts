@@ -108,7 +108,10 @@ export const ERROR = {
 export enum MIME {
   js = "text/javascript",
   html = "text/html",
-  css = "text/css"
+  css = "text/css",
+  png = "image/png",
+  jpg = "image/jpeg",
+  ico =  "image/x-icon",
 }
 
 export const PORT = process.env.PORT || 4000;

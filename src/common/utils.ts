@@ -104,6 +104,7 @@ export function sendPublicFile(res: ServerResponse, filepath: string) {
   }
 
   let ext = resourcePath.split('.').pop();
+
   res.writeHead(200, { "Content-type": MIME[ext] });
-  res.write(readFileSync(resourcePath, "utf-8"))
+  res.write(readFileSync(resourcePath))
 }
