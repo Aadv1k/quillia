@@ -46,8 +46,6 @@ export default function App() {
           setBookData(data);
         }
       });
-
-
   }
 
   useEffect(() => {
@@ -65,7 +63,7 @@ export default function App() {
     if (localIssueData) setIssueData(localIssueData);
 
     fetchBooksFromAPI();
-  }, []);
+  }, [currentUser]);
 
   return (
     <UserContext.Provider value={[currentUser, setCurrentUserToValue]}>
@@ -76,7 +74,9 @@ export default function App() {
             <section className="login px-4 mx-auto my-2 max-w-5xl grid grid-cols-1 gap-4">
               <div>
                 <h2 className="font-serif">Login/Sign Up</h2>
-                <Login />
+                <Login 
+                  fetchIssuesFromAPI={fetchIssuesFromAPI}
+                />
               </div>
             </section>
           </Route>

@@ -1,18 +1,23 @@
 import Form from "react-bootstrap/Form";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useLocation } from "wouter";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import "./Login.css";
 import UserContext from "../UserContext.js";
 import { CustomToast } from "./Toast.jsx";
 
 
-export default function Login() {
+export default function Login(props) {
   const [_a, navigate] = useLocation();
-  const [_b, setCurrentUserToValue] = useContext(UserContext);
+  const [currentUser, setCurrentUserToValue] = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState({});
   const [isToastShown, setShowToast] = useState(null);
+
+  useEffect(() => {
+    if (localStorage.getItem("Token")) 
+      navigate("/")
+  }, [])
 
   let handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,7 +52,8 @@ export default function Login() {
         token: loginData.token,
         user: loginData.data
       });
-      navigate("/", { replace: true });
+
+      window.location.reload()
       setIsLoading(false);
       return;
     }

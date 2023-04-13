@@ -8,12 +8,13 @@ import UserModel from "../models/UserModel";
 import Token from "../lib/GenerateToken";
 import isEmailValid from "../lib/isEmailValid";
 
-const DB = new UserModel();
 
 export default async function (
   req: http.IncomingMessage,
   res: http.ServerResponse
 ) {
+  const DB = new UserModel();
+
   if (req.method !== "POST") {
     sendJsonResponse(res, ERROR.methodNotAllowed, 405);
     return;

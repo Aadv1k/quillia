@@ -9,11 +9,13 @@ export default function Book(props) {
   let [currentUser, _a] = useContext(UserContext);
   let [isIssued, setIssued] = useState(false);
   let [isLoading, setLoading] = useState(false);
+  let [user, setUser] = useState({});
 
   useEffect(() => {
-    let parsedUser ;
+    let parsedUser;
     try {
       parsedUser = JSON.parse(currentUser).user.id
+      setUser(JSON.parse(currentUser))
     } catch {
       parsedUser = null;
 
@@ -32,7 +34,7 @@ export default function Book(props) {
     fetch("/api/issues", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer " + JSON.parse(currentUser).token,
+        "Authorization": "Bearer " + user.token,
         "Content-type": "application/json",
       },
       body: JSON.stringify({
@@ -68,12 +70,11 @@ export default function Book(props) {
 
       {isModalVisible && currentUser && !isIssued && (
         <Modal show={isModalVisible} onHide={() => setModalVisible(false)} backdrop="static">
-
           <Modal.Header closeButton>
             <Modal.Title>Confirm issue?</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <b>{props.data.title}</b> will be issued to {JSON.parse(currentUser).user.email}
+            <b>{props.data.title}</b> will be issued to {user?.user?.email}
           </Modal.Body>
           <Modal.Footer>
             <button

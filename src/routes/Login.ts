@@ -32,8 +32,6 @@ export default async function (
   await DB.init();
   const foundUser: User = await DB.getUser(parsedData.email);
   await DB.close();
-  console.log(foundUser);
-
 
   if (!foundUser) {
     sendJsonResponse(res, ERROR.userNotFound, 404);
