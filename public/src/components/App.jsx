@@ -50,7 +50,10 @@ export default function App() {
     if (localIssueData) {
       setIssueData(localIssueData)
     }
-    fetchIssuesFromAPI(storedUser);
+
+    if (currentUser) {
+      fetchIssuesFromAPI(storedUser);
+    }
 
     setCurrentUserToValue(storedUser);
 
