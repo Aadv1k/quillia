@@ -60,9 +60,9 @@ export default function Book(props) {
       {isModalVisible && currentUser && isIssued && (
         <Modal show={true} fullscreen={true} onHide={() => setModalVisible(false)}>
           <Modal.Header closeButton>
-            <Modal.Title className="sm:text-base">Reading: {props.data.title}</Modal.Title>
+            <h2 className="text-base sm:text-lg">Reading: {props.data.title}</h2>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body className="p-0">
             <BookPage bookid={props.data.id} />
           </Modal.Body>
         </Modal>
