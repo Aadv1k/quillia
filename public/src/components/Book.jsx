@@ -26,7 +26,7 @@ export default function Book(props) {
       e.borrowerid === parsedUser
     );
     if (foundIssue) setIssued(true);
-  }, [])
+  }, [currentUser, props.issueData])
 
 
   const issueBook = () => {
@@ -60,7 +60,7 @@ export default function Book(props) {
       {isModalVisible && currentUser && isIssued && (
         <Modal show={true} fullscreen={true} onHide={() => setModalVisible(false)}>
           <Modal.Header closeButton>
-            <Modal.Title>Reading: {props.data.title}</Modal.Title>
+            <Modal.Title className="sm:text-base">Reading: {props.data.title}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <BookPage bookid={props.data.id} />

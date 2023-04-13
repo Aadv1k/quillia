@@ -16,7 +16,6 @@ export default function App() {
 
   const fetchIssuesFromAPI = (currentUser) => {
     let localIssueData = JSON.parse(localStorage.getItem("issues"));
-
     fetch("/api/issues", {
       headers: {
         "Authorization": "Bearer " + JSON.parse(currentUser).token,
@@ -25,19 +24,14 @@ export default function App() {
       .then((res) => res.json())
       .then((data) => {
         if (localIssueData !== data) {
-          localStorage.setItem("issues", JSON.stringify(
-            data.filter(
-              (e) => e.userid == currentUser.id)
-            )
-          );
+          localStorage.setItem("issues", JSON.stringify(data))
           setIssueData(data);
-        }
+        } 
       });
   }
 
   const fetchBooksFromAPI = () => {
     let localBookData = JSON.parse(localStorage.getItem("books"));
-
     fetch("/api/books", { })
       .then((res) => res.json())
       .then((data) => {
@@ -51,18 +45,21 @@ export default function App() {
   useEffect(() => {
     let localBookData = JSON.parse(localStorage.getItem("books"));
     let localIssueData = JSON.parse(localStorage.getItem("issues"));
-
     let storedUser = localStorage.getItem("Token");
 
-    if (storedUser) {
-      setCurrentUserToValue(storedUser);
-      fetchIssuesFromAPI(storedUser);
+    if (localIssueData) {
+      setIssueData(localIssueData)
     }
+    fetchIssuesFromAPI(storedUser);
 
-    if (localBookData) setBookData(localBookData);
-    if (localIssueData) setIssueData(localIssueData);
+    setCurrentUserToValue(storedUser);
 
+    if (localBookData) {
+      setBookData(localBookData)
+    }
     fetchBooksFromAPI();
+
+
   }, [currentUser]);
 
   return (
@@ -74,9 +71,7 @@ export default function App() {
             <section className="login px-4 mx-auto my-2 max-w-5xl grid grid-cols-1 gap-4">
               <div>
                 <h2 className="font-serif">Login/Sign Up</h2>
-                <Login 
-                  fetchIssuesFromAPI={fetchIssuesFromAPI}
-                />
+                <Login />
               </div>
             </section>
           </Route>

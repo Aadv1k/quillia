@@ -9,7 +9,7 @@ import { CustomToast } from "./Toast.jsx";
 
 export default function Login(props) {
   const [_a, navigate] = useLocation();
-  const [currentUser, setCurrentUserToValue] = useContext(UserContext);
+  const [currentUser, setCurrentUser] = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState({});
   const [isToastShown, setShowToast] = useState(null);
@@ -48,12 +48,8 @@ export default function Login(props) {
         user: loginData.data
       }));
 
-      setCurrentUserToValue({
-        token: loginData.token,
-        user: loginData.data
-      });
-
-      window.location.reload()
+      setCurrentUser({ token: loginData.token, user: loginData.data });
+      navigate("/");
       setIsLoading(false);
       return;
     }
@@ -80,12 +76,12 @@ export default function Login(props) {
       user:  signupData.data
     }));
 
-    setCurrentUserToValue({
+    setCurrentUser({
       token: signupData.token,
       user:  signupData.data
     });
 
-    navigate("/", { replace: true });
+    navigate("/");
     setIsLoading(false);
   };
 
