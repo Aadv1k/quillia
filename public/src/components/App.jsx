@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Navbar from "./Navbar.jsx";
 import Login from "./Login.jsx";
 import Library from "./Library.jsx";
+import About from "./About.jsx";
 import "./App.css";
 import { Route, Router, Switch, useLocation} from 'wouter';
 import UserContext from "../UserContext.js";
@@ -85,6 +86,10 @@ export default function App() {
               localStorage.removeItem('Issues');
               navigate("/");
             }}
+          </Route>
+
+          <Route path="/about">
+            <About />
           </Route>
 
           <Route>

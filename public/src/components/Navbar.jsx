@@ -133,7 +133,12 @@ export default function Navbar(props) {
         </Modal>
       )}
 
-      <div className="flex flex-row gap-1 items-center w-full justify-center md:justify-end">
+      <div className="flex flex-row gap-2 items-center w-full justify-between md:justify-end">
+        <a 
+        href="/about"
+          className="text-orange-500 underline w-1/2 flex items-center justify-center gap-2 md:w-1/4 hover:text-orange-600"
+        >About</a>
+
         {!currentUser ? (
           <Link
             className="text-black no-underline text-md py-2 w-1/2 bg-orange-300 rounded-full border-orange-300 border-2 flex items-center justify-center gap-2 md:w-1/4"
