@@ -11,9 +11,17 @@ export default function Book(props) {
   let [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
+    let parsedUser ;
+    try {
+      parsedUser = JSON.parse(currentUser).user.id
+    } catch {
+      parsedUser = null;
+
+    }
     let foundIssue = props.issueData.find(e => 
+
       e.bookid === props.data.id && 
-      e.borrowerid === JSON.parse(currentUser)?.user?.id
+      e.borrowerid === parsedUser
     );
     if (foundIssue) setIssued(true);
   }, [])

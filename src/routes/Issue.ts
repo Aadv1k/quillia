@@ -107,7 +107,7 @@ export default async function (
         return;
       }
 
-      let foundLender = await USER_DB.getUser("", issueData.lenderid);
+      let foundLender = await USER_DB.getUserByID(issueData.lenderid);
       let foundBook = await BOOK_DB.getBook(issueData.bookid);
 
       if (!foundLender || !foundBook) {

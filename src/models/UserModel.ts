@@ -30,6 +30,21 @@ export default class UserModel {
     return result.rows[0].exists
   } 
 
+
+  async getUserByID(id: string): Promise<User | null> {
+    try {
+      const response = await this.client.query(
+        `SELECT * FROM users 
+        WHERE id = $1`, 
+        [id]
+      );
+      return response.rows[0]
+    } catch (error) {
+      //console.error(error);
+      return null;
+    }
+  }
+
   async getUser(email: string, id?: string): Promise<User | null> {
     try {
       const response = await this.client.query(
