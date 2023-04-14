@@ -21,7 +21,6 @@ export default function Book(props) {
 
     }
     let foundIssue = props.issueData.find(e => 
-
       e.bookid === props.data.id && 
       e.borrowerid === parsedUser
     );
@@ -30,6 +29,7 @@ export default function Book(props) {
 
 
   const issueBook = () => {
+    console.log(props.data.userid, props.data.id)
     setLoading(true)
     fetch("/api/issues", {
       method: "POST",
@@ -46,6 +46,7 @@ export default function Book(props) {
       .then(data => {
         setLoading(false);
         if (data.error) {
+          console.log(localStorage.getItem("issues"));
           console.error(data.error);
         } else {
           setIssued(true);

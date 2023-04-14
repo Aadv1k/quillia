@@ -114,13 +114,12 @@ export default async function (
         sendJsonResponse(res, ERROR.resourceNotExists, 404);
         return;
       }
+
       let foundIssue = await ISSUE_DB.getIssue(
         foundLender.id,
         foundBook.id,
         parsedAuthToken.id
       );
-
-      console.log(foundIssue);
 
       if (foundIssue) {
         sendJsonResponse(

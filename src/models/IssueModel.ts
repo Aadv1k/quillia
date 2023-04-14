@@ -87,10 +87,10 @@ export default class IssueModel {
     try {
       let response = await this.client.query(
         `SELECT * FROM issues 
-          WHERE lenderid = $1
+          WHERE borrowerid = $1
           AND bookid = $2
         `,
-        [lenderid ?? null, bookid ?? null]
+        [borrowerid ?? null, bookid ?? null]
       );
       return response.rows[0];
     } catch (error) {
