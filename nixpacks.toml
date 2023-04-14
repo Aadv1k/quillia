@@ -1,0 +1,2 @@
+[phase.name]
+  aptPkgs = ['findutils', 'grep', 'unzip']
