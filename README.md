@@ -11,6 +11,21 @@ docker build -t quillia-dev .
 docker run -p 3000:8080 quillia-dev # forward 8080 to 3000
 ```
 
+### Config
+
+The server uses [cloudinary](cloudinary.com) and [PostgreSQL](https://www.postgresql.org/) database hosted at [bit.io](bit.io) as its only external services, these need to be configured in a `.env` file
+
+```ini
+PG_USER=""
+PG_HOST=""
+PG_PORT=
+PG_DB=""
+PG_PASSWORD=""
+
+CLOUDINARY_API_KEY=""
+CLOUDINARY_API_SECRET=""
+```
+
 ### Build
 
 ```
@@ -53,7 +68,6 @@ Signup.ts
 ### Models
 
 To store `.epub` documents and their covers we use [cloudinary](https://cloudinary.com/), the functionality for this is implemented within `./src/models/BookModel.ts`
-
 
 The user, issues and books each have their own tables in a [PostgreSQL](https://www.postgresql.org/) database hosted at [bit.io](bit.io), each table corresponds to the name `users`, `issues`, `books`. Each table is implemented separately in it's own model files. 
 
