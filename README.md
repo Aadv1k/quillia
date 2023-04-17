@@ -4,26 +4,40 @@
 
 ## Get
 
-### Docker
+### Bootstrap
+
+The app provides a [`docker-compose.yml`](./docker-compose.yml) which 
+- Sets up a postgres server
+- Starts our node app at port 8080
+
+**NOTE: you will still need a cloudinary account, otherwise covers won't show up**
+
+to configure you need a `.env` file with the following:
+
+```ini
+# You can change these
+PG_USER="hello" 
+PG_PASSWORD="1234"
+PG_DB="user-db"  
+
+# These are hardcoded in the docker-compose.yml
+
+PG_PORT=5432 
+PG_HOST="quillia-db-1"
+
+# Cloudinary config
+
+CLOUDINARY_API_KEY=""
+CLOUDINARY_API_SECRET=""
+```
+
+### Docker image
+
+this will run a docker container with the app. 
 
 ```
 docker build -t quillia-dev .
 docker run -p 3000:8080 quillia-dev # forward 8080 to 3000
-```
-
-### Config
-
-The server uses [cloudinary](cloudinary.com) and [PostgreSQL](https://www.postgresql.org/) database hosted at [bit.io](bit.io) as its only external services, these need to be configured in a `.env` file
-
-```ini
-PG_USER=""
-PG_HOST=""
-PG_PORT=
-PG_DB=""
-PG_PASSWORD=""
-
-CLOUDINARY_API_KEY=""
-CLOUDINARY_API_SECRET=""
 ```
 
 ### Build
@@ -41,7 +55,6 @@ npm run build # runs both of the scripts
 npm start
 ```
 
-
 ## Frontend
 
 The frontend is built using ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB), ![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=flat&logo=bootstrap&logoColor=white) and ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)
@@ -52,7 +65,6 @@ the frontend code is open for more improvements, but the current implementation 
 ## Backend
 
 The app is written in _mostly_ safe TypeScript code, here is a breakdown of the codebase. 
-
 
 ### Routes
 
