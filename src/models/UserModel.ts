@@ -7,18 +7,26 @@ export default class UserModel {
 
   constructor() {
     this.client = new Client({
-      user: DBConfig.USER,
       host: DBConfig.HOST,
-      database: DBConfig.DB_NAME,
+      user: DBConfig.USER,
       password: DBConfig.PASSWORD,
+      database: DBConfig.DB_NAME,
       port: DBConfig.PORT,
-      ssl: true
+      ssl: false
     })
   }
 
   async init(): Promise<void> {
     try {
+      console.log(this.client)
       await this.client.connect();
+      await this.client.query(`
+        CREATE TABLE IF NOT EXISTS users (
+         id VARCHAR(255) UNIQUE NOT NULL,
+         email VARCHAR(255) NOT NULL,
+         password VARCHAR(255) NOT NULL
+        )
+        `);
     } catch (error) {
       throw error
     }

@@ -7,25 +7,24 @@ export default class IssueModel {
 
   constructor() {
     this.client = new Client({
-      user: DBConfig.USER,
       host: DBConfig.HOST,
-      database: DBConfig.DB_NAME,
+      user: DBConfig.USER,
       password: DBConfig.PASSWORD,
+      database: DBConfig.DB_NAME,
       port: DBConfig.PORT,
-      ssl: true,
+      ssl: false
     });
   }
 
   async init(): Promise<void> {
     try {
       await this.client.connect();
-      await this.client.query(`
-        CREATE TABLE IF NOT EXISTS issues (
+      await this.client.query(`CREATE TABLE IF NOT EXISTS issues (
          id VARCHAR(255) UNIQUE NOT NULL,
          lenderid VARCHAR(255) NOT NULL,
          borrowerid VARCHAR(255) NOT NULL,
          bookid VARCHAR(255) NOT NULL
-        )
+       )
         `);
     } catch (error) {
       throw error;
