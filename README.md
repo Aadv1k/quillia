@@ -8,6 +8,7 @@
 
 The app provides a [`docker-compose.yml`](./docker-compose.yml) which 
 - Sets up a postgres server
+  - The models are coded to create tables and their schemas for you
 - Starts our node app at port 8080
 
 **NOTE: you will still need a cloudinary account, otherwise covers won't show up**
@@ -29,6 +30,10 @@ PG_HOST="quillia-db-1"
 
 CLOUDINARY_API_KEY=""
 CLOUDINARY_API_SECRET=""
+```
+
+```shell
+docker compose up -d
 ```
 
 ### Docker image
