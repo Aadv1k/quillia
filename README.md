@@ -83,6 +83,18 @@ UserModel.ts
 - `./src/common/const.ts`: contains all constants, this included `PORT`, `MIME`, API `ERROR` blobs and even enviorment variables exported as contants (this is done to reduce the friction of moving a `.env` file)
 - `./src/common/types.ts`: Contains types for our project
 
+## Potential features 
+
+Full credit goes to [u/just-forest](https://www.reddit.com/user/just-forest/) for the wonderful suggestions
+
+- Save page position in the reader per user
+- Dark mode toggle
+- Option to hide books to users not logged in (alternatively, set it for each book like Memos does)
+- Option to import books from a server folder
+- Search
+- Sort options (Alphabetical, latest, most issued)
+- Sign out, delete account, delete books
+- Upload book via direct epub url (eg. Guthenburg)
 
 ## API
 
