@@ -12,13 +12,12 @@ export default class UserModel {
       password: DBConfig.PASSWORD,
       database: DBConfig.DB_NAME,
       port: DBConfig.PORT,
-      ssl: false
+      ssl: true
     })
   }
 
   async init(): Promise<void> {
     try {
-      console.log(this.client)
       await this.client.connect();
       await this.client.query(`
         CREATE TABLE IF NOT EXISTS users (
@@ -48,7 +47,6 @@ export default class UserModel {
       );
       return response.rows[0]
     } catch (error) {
-      //console.error(error);
       return null;
     }
   }
@@ -63,7 +61,6 @@ export default class UserModel {
       );
       return response.rows[0]
     } catch (error) {
-      //console.error(error);
       return null;
     }
   }

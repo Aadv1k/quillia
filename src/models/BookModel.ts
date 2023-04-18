@@ -12,7 +12,7 @@ export default class BookModel {
       password: DBConfig.PASSWORD,
       database: DBConfig.DB_NAME,
       port: DBConfig.PORT,
-      ssl: false
+      ssl: true
     })
   }
 
@@ -64,9 +64,9 @@ export default class BookModel {
     }
   }
 
-  async deleteBook(bookid: string) {
+  async deleteBook(bookid: string, userid?: string) {
     try {
-      await this.client.query("DELETE FROM books WHERE id = $1", [bookid]);
+      await this.client.query(`DELETE FROM books WHERE id = $1 ${userid && "AND userid = $2"}`, [bookid, userid ?? ""]);
       return bookid;
     } catch (error) {
       console.error(error); 

@@ -12,7 +12,7 @@ export default class IssueModel {
       password: DBConfig.PASSWORD,
       database: DBConfig.DB_NAME,
       port: DBConfig.PORT,
-      ssl: false
+      ssl: true,
     });
   }
 
