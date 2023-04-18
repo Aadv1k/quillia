@@ -10,8 +10,11 @@ The app provides a [`docker-compose.yml`](./docker-compose.yml) which
 - Sets up a postgres server
   - The models are coded to create tables and their schemas for you
 - Starts our node app at port 8080
-
-**NOTE: you will still need a cloudinary account, otherwise covers won't show up**
+- **NOTE:** you unfortunately may have to set `ssl: false`, otherwise database may not run locally in the following files:
+  - [`./src/models/BookModel.ts`](./src/models/BookModel.ts)
+  - [`./src/models/UserModel.ts`](./src/models/UserModel.ts)
+  - [`./src/models/IssueModel.ts`](./src/models/IssueModel.ts)
+- **NOTE: you will still need a cloudinary account, otherwise covers won't show up**
 
 to configure you need a `.env` file with the following:
 
@@ -255,6 +258,70 @@ A single `.epub` document less than 20 MB
   "error": "resource-not-found"
 }
 ```
+
+### `DELETE /api/books`
+
+#### Headers
+
+- `Authorization`: valid jwt token
+- `Content-type`: `application/epub`
+
+#### Body
+
+```json
+{
+  "bookid": "a valid bookid"
+}
+```
+
+#### Succces
+
+```json
+{
+  "error": null,
+  status: 404
+  "message": "successfully deleted book of id dwqoii329",
+  "data": {
+    "id": "dwqoii329"
+  }
+}
+```
+
+#### Error
+
+```json
+{
+  "message": "the given credentials were invalid",
+  "status": 401,
+  "error": "unauthorized"
+}
+```
+
+```json
+{
+  "message": "the mime recieved for the resource is not valid",
+  "status": 415,
+  "error": "invalid-mime-for-resource"
+}
+```
+
+
+```json
+{
+  "message": "was unable to delete book weqoiw0, perhaps the id was invalid?",
+  "status": 404,
+  "error": "unable-to-delete-book"
+}
+```
+
+```json
+{
+  "message": "resource does not exist",
+  "status": 404,
+  "error": "resource-not-found"
+}
+```
+
 
 ### `GET /api/issues`
 

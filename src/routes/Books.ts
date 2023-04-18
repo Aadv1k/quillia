@@ -251,7 +251,7 @@ export default async function (
         sendJsonResponse(res, {
           error: "unable-to-delete-book",
           message: `was unable to delete book ${data.bookid}, perhaps the id was invalid?`,
-          code: 404
+          status: 404
         }, 404)
         return;
       }
@@ -259,7 +259,7 @@ export default async function (
       sendJsonResponse(res, {
         error: null,
         message: `successfully deleted book of id ${data.bookid}`,
-        code: 204,
+        status: 204,
         data: {
           id: data.bookid,
         }
